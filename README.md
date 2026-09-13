@@ -26,6 +26,75 @@ A lightweight, accessible internship recommendation prototype inspired by the pr
 
 ---
 
+## How the Application Works Behind the Scenes
+
+This project is not a static form. It is a full local recommendation stack with a React UI and a Python scoring engine.
+
+The user journey starts in the frontend wizard, implemented in the React page at `frontend/src/pages/WizardPage.tsx`. The wizard has four steps:
+1. Education
+2. Skills
+3. Sectors
+4. Location and work mode
+
+At the end of the wizard, the frontend sends a JSON payload shaped like the `CandidateProfile` schema from `backend/app/schemas/recommendation.py` to the FastAPI endpoint `POST /api/v1/recommendations`. The payload contains:
+- `education`
+- `skills`
+- `sectors`
+- `state`
+- `district`
+- `preferred_work_mode`
+- `is_work_mode_mandatory`
+- `is_location_mandatory`
+- `willing_to_relocate`
+- `resume_text` (optional)
+
+On the backend, the route in `backend/app/api/routes/recommendations.py` validates that the education string is not empty and that it can be mapped to a supported education category. If the request passes the route guard, it hands the validated `CandidateProfile` object to the recommender engine in `backend/app/services/recommender.py`.
+
+The recommender engine is a deterministic hybrid scorer. It works in four stages:
+
+1. **Eligibility filtering**
+   - It reads all active, non-expired internships from SQLite.
+   - It checks if the internship accepts the candidate’s education category.
+   - It applies the hard mandatory constraints such as work mode and location if the user selected them.
+   - Only matching internships enter the scoring pool.
+
+2. **Candidate and listing normalization**
+   - Education, skills, sector codes, and location strings are normalized into canonical keys using the helper functions in `backend/app/services/normalization.py`.
+   - This prevents mismatches like `python`, `Python`, `PYTHON`, or `Python 3` from being treated as separate entries.
+
+3. **Weighted scoring**
+   - Skills are scored using an IDF-based overlap calculation inspired by information retrieval. Rare skills receive more signal. The scoring function returns a skill component score and a list of explanation `ReasonCode` objects.
+   - Sector alignment is scored as a binary 1.0 / 0.0 component when the user selected a sector.
+   - Location compatibility is scored with explicit district, state, relocation, and work-mode rules. Remote opportunities receive a friendly score when the selected mode is remote, hybrid, or any.
+   - Text relevance is computed using a TF-IDF vectorizer on internship text plus an embedding similarity fallback when the embedding service is available.
+
+4. **Weighted recombination**
+   - The base weights are:
+     - skill = `0.40`
+     - sector = `0.30`
+     - location = `0.20`
+     - text = `0.10`
+   - If a candidate leaves out a component, such as no skill evidence or no selected sector, the available weights are renormalized so the remaining meaningful components still add up to the full score.
+   - The score is clipped into the range `0.0` to `1.0`, bucketed into `strong`, `good`, `moderate`, or `exploratory`, and sorted deterministically by score descending, then earliest deadline, then stable internship ID.
+
+The result returned to the frontend is a `RecommendationResponse` object containing:
+- `results`: top recommended internships
+- `total_eligible`
+- `has_limited_profile`
+- `profile_summary_en` and `profile_summary_hi`
+- a `disclaimer`
+
+Every result card includes `component_scores`, `effective_weights`, `missing_skills`, and `reasons`. These reasons are created as structured `ReasonCode` objects and later rendered in English or Hindi by the UI layer.
+
+Example behind-the-scenes signal:
+- If a candidate selected a sector that a listing belongs to, the engine records a sector reason such as `SECTOR_INTEREST`.
+- If the location is the same as the home district, the engine records `SAME_DISTRICT`.
+- If the listing is beginner-friendly, the engine may append `NO_PRIOR_SKILLS_REQUIRED`.
+
+This design is what makes the tool both explainable and transparent rather than a pure black-box ranking system.
+
+---
+
 ## Prerequisites
 
 Before running the application, make sure you have:
