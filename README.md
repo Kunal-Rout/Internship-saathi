@@ -1,4 +1,4 @@
-# Internship Saathi (????????? ????)
+# Internship Saathi
 
 Internship Saathi is a local internship recommendation prototype inspired by the PM Internship Scheme. The project helps a student move from an education profile, skill preferences, sector interests, and location/work-mode preferences to a ranked list of internship opportunities that are the most suitable.
 
@@ -186,8 +186,8 @@ The role of the model is not to decide eligibility directly. Instead, it enriche
 
 For example:
 
-- a resume mentions “data science workflow”
-- an internship description mentions “machine learning project lifecycle”
+- a resume mentions ï¿½data science workflowï¿½
+- an internship description mentions ï¿½machine learning project lifecycleï¿½
 
 A pure keyword method might miss the semantic overlap, but the embedding model can represent both phrases in a vector space where similar meanings are closer.
 
