@@ -1,263 +1,337 @@
-# Internship Saathi (इंटर्नशिप साथी)
+# Internship Saathi (????????? ????)
 
-A lightweight, accessible internship recommendation prototype inspired by the problem statement of the **PM Internship Scheme**.
+Internship Saathi is a local internship recommendation prototype inspired by the PM Internship Scheme. The project helps a student move from an education profile, skill preferences, sector interests, and location/work-mode preferences to a ranked list of internship opportunities that are the most suitable.
+
+The objective is not to replace an official government portal. It is a demo system that uses synthetic sample internship data and a transparent recommendation engine to explain why one listing is ranked above another.
 
 > [!IMPORTANT]
-> **Demonstration prototype. Sample internships only. Not an official government portal.**  
-> This application is built for local demonstration and algorithmic evaluation. It uses 120 synthetic sample listings and does not claim official eligibility verification, live government data, real applications, or official portal integration.
+> This is a demonstration prototype using sample internship records stored locally in the repository. It is not an official government application, and it does not perform live verification of government eligibility or application status.
 
 ---
 
-## Highlights
+## What the Project Is About
 
-- **Zero External API Keys & 100% Free**: Operates completely offline on your local machine using SQLite, scikit-learn (TF-IDF), FastAPI, and React.
-- **Privacy-First**: No user profiles or personal tracking data are stored on the server or in databases. No names, phone numbers, or Aadhaar numbers are collected.
-- **Bilingual Interface**: Full bundled support for English and Hindi (हिन्दी) with instant switching and persistent language selection.
-- **Accessible & Beginner-Friendly**: Designed for first-time seekers with high contrast, large touch targets (48px+), minimal animation, and special support for candidates with no prior experience or computer skills.
-- **Explainable Matching**: Deterministic hybrid scoring (Skills 40%, Sector 30%, Location 20%, TF-IDF 10%) with dynamic weight renormalization and truthful reason codes.
+The project is a full-stack recommendation application that collects a learner profile through a web wizard and then returns an ordered list of internships.
 
----
+The user journey is:
 
-## Architecture at a Glance
+1. Choose education level.
+2. Select or upload skills.
+3. Choose sectors of interest.
+4. Choose preferred state, district, and work mode.
+5. Submit the profile to the backend recommendations API.
 
-- **Frontend**: React 19, TypeScript, Vite, Tailwind CSS, React Router, react-i18next, Vite PWA plugin, Vitest + React Testing Library.
-- **Backend**: Python 3.12, FastAPI, Uvicorn, SQLAlchemy 2.0 (synchronous session pattern with SQLite foreign keys), Alembic migrations, scikit-learn, pytest, httpx.
-- **Database**: SQLite stored at `backend/data/app.db`.
+The backend reads the internship dataset from the local SQLite database, filters eligible opportunities, and ranks them using a deterministic hybrid matching system.
 
 ---
 
-## How the Application Works Behind the Scenes
+## Why This Exists
 
-This project is not a static form. It is a full local recommendation stack with a React UI and a Python scoring engine.
+The project solves a real problem for students who need help finding internships that match their:
 
-The user journey starts in the frontend wizard, implemented in the React page at `frontend/src/pages/WizardPage.tsx`. The wizard has four steps:
-1. Education
-2. Skills
-3. Sectors
-4. Location and work mode
+- education background
+- skill knowledge
+- preferred sector
+- state, district or relocation willingness
+- preferred work mode such as remote, hybrid, or on-site
 
-At the end of the wizard, the frontend sends a JSON payload shaped like the `CandidateProfile` schema from `backend/app/schemas/recommendation.py` to the FastAPI endpoint `POST /api/v1/recommendations`. The payload contains:
-- `education`
-- `skills`
-- `sectors`
-- `state`
-- `district`
-- `preferred_work_mode`
-- `is_work_mode_mandatory`
-- `is_location_mandatory`
-- `willing_to_relocate`
-- `resume_text` (optional)
-
-On the backend, the route in `backend/app/api/routes/recommendations.py` validates that the education string is not empty and that it can be mapped to a supported education category. If the request passes the route guard, it hands the validated `CandidateProfile` object to the recommender engine in `backend/app/services/recommender.py`.
-
-The recommender engine is a deterministic hybrid scorer. It works in four stages:
-
-1. **Eligibility filtering**
-   - It reads all active, non-expired internships from SQLite.
-   - It checks if the internship accepts the candidate’s education category.
-   - It applies the hard mandatory constraints such as work mode and location if the user selected them.
-   - Only matching internships enter the scoring pool.
-
-2. **Candidate and listing normalization**
-   - Education, skills, sector codes, and location strings are normalized into canonical keys using the helper functions in `backend/app/services/normalization.py`.
-   - This prevents mismatches like `python`, `Python`, `PYTHON`, or `Python 3` from being treated as separate entries.
-
-3. **Weighted scoring**
-   - Skills are scored using an IDF-based overlap calculation inspired by information retrieval. Rare skills receive more signal. The scoring function returns a skill component score and a list of explanation `ReasonCode` objects.
-   - Sector alignment is scored as a binary 1.0 / 0.0 component when the user selected a sector.
-   - Location compatibility is scored with explicit district, state, relocation, and work-mode rules. Remote opportunities receive a friendly score when the selected mode is remote, hybrid, or any.
-   - Text relevance is computed using a TF-IDF vectorizer on internship text plus an embedding similarity fallback when the embedding service is available.
-
-4. **Weighted recombination**
-   - The base weights are:
-     - skill = `0.40`
-     - sector = `0.30`
-     - location = `0.20`
-     - text = `0.10`
-   - If a candidate leaves out a component, such as no skill evidence or no selected sector, the available weights are renormalized so the remaining meaningful components still add up to the full score.
-   - The score is clipped into the range `0.0` to `1.0`, bucketed into `strong`, `good`, `moderate`, or `exploratory`, and sorted deterministically by score descending, then earliest deadline, then stable internship ID.
-
-The result returned to the frontend is a `RecommendationResponse` object containing:
-- `results`: top recommended internships
-- `total_eligible`
-- `has_limited_profile`
-- `profile_summary_en` and `profile_summary_hi`
-- a `disclaimer`
-
-Every result card includes `component_scores`, `effective_weights`, `missing_skills`, and `reasons`. These reasons are created as structured `ReasonCode` objects and later rendered in English or Hindi by the UI layer.
-
-Example behind-the-scenes signal:
-- If a candidate selected a sector that a listing belongs to, the engine records a sector reason such as `SECTOR_INTEREST`.
-- If the location is the same as the home district, the engine records `SAME_DISTRICT`.
-- If the listing is beginner-friendly, the engine may append `NO_PRIOR_SKILLS_REQUIRED`.
-
-This design is what makes the tool both explainable and transparent rather than a pure black-box ranking system.
+Instead of showing a plain list, the application explains the reasons behind the ranked result with matched skills, sectors, location rules, and text similarity.
 
 ---
 
-## Prerequisites
+## Project Architecture
 
-Before running the application, make sure you have:
-- **Python 3.12** (verify with `python --version` or `py -3.12 --version`)
-- **Node.js 18+** and **npm** (verify with `node --version` and `npm --version`)
+The system has three main layers:
+
+### 1. Frontend Layer
+
+The user interface is built using React + TypeScript + Vite.
+
+Important frontend files:
+
+- `frontend/src/pages/WizardPage.tsx` handles the four-step profile-building flow.
+- `frontend/src/services/api.ts` sends request payloads to the backend and normalizes errors.
+- `frontend/src/pages/RecommendationsPage.tsx` renders the ranked internship cards.
+
+### 2. Backend Layer
+
+The backend is built using FastAPI and Python.
+
+Important backend files:
+
+- `backend/app/api/routes/recommendations.py` receives the candidate profile and returns a recommendation response.
+- `backend/app/schemas/recommendation.py` defines the profile payload and response models.
+- `backend/app/services/recommender.py` contains the scoring engine.
+- `backend/app/services/normalization.py` normalizes skills, sectors, education, and text inputs.
+- `backend/app/services/embeddings.py` manages the sentence-embedding model and embedding cache.
+
+### 3. Data Layer
+
+The data is stored locally and seeded into SQLite.
+
+Important data files:
+
+- `backend/app/data/internships.json` contains sample internship records.
+- `backend/app/data/taxonomy.json` contains taxonomy and labels.
+- `backend/app/data/embeddings.npy` stores precomputed internship embedding vectors.
+- `backend/app/data/embedding_ids.json` stores the internship IDs corresponding to the vectors.
 
 ---
 
-## Quick Start (Automated Scripts)
+## Workflow: From Profile to Internship Match
 
-### On Windows (PowerShell)
+The complete recommendation procedure is:
+
+### Step 1: Candidate Profile Creation
+
+The user answers the wizard questions in the frontend:
+
+- education
+- skills
+- sectors
+- state
+- district
+- preferred work mode
+- willingness to relocate
+- optional resume text extracted from a file upload
+
+This profile becomes a `CandidateProfile` request object.
+
+### Step 2: Backend Validation
+
+The recommendation route validates the request before scoring:
+
+- education must be supported
+- mandatory fields must be parsed correctly
+- the request body must use the defined schema
+
+If validation passes, the backend sends the normalized profile into the recommender.
+
+### Step 3: Eligibility Filtering
+
+The recommender loads active internships and applies hard filters:
+
+- education compatibility
+- work mode compatibility
+- location compatibility
+- relocation compatibility if required
+- active listing checks
+
+Only eligible internships are included in the ranking process.
+
+### Step 4: Text & Skill Normalization
+
+The recommender normalizes:
+
+- skill codes such as `python` and `python_programming`
+- sector codes
+- state and district strings
+- resume text and internship descriptions
+
+This prevents inconsistent spelling or case differences from breaking the matching logic.
+
+### Step 5: Hybrid Scoring
+
+Each eligible internship receives a score from four components:
+
+1. `Skill score`:
+   - measures how closely the candidate skills overlap with the internship required skills
+   - uses IDF weighting, so rare skills contribute stronger evidence
+
+2. `Sector score`:
+   - compares the selected sectors to the internship sector
+
+3. `Location score`:
+   - compares district, state, remote/hybrid/on-site preferences, and relocation willingness
+
+4. `Text score`:
+   - combines TF-IDF vector similarity and sentence embedding similarity
+
+The final ranking is built from the weighted sum of these signals.
+
+### Step 6: Reason Generation
+
+The system explains the match using structured reason codes such as:
+
+- `SECTOR_INTEREST`
+- `SAME_DISTRICT`
+- `NO_PRIOR_SKILLS_REQUIRED`
+- `LIMITED_PROFILE_EXPLORATION`
+
+Those reasons are returned to the frontend and shown in the recommendation cards.
+
+### Step 7: Sort and Return Results
+
+The recommender sorts by:
+
+1. highest total score
+2. earliest deadline
+3. stable internship ID
+
+The final response contains the top ranked internships and an explainable summary.
+
+---
+
+## What the Transformer Model `all-MiniLM-L6-v2` Does
+
+The project uses the sentence-transformers model `all-MiniLM-L6-v2` in the embedding service.
+
+That model converts text into a fixed-length dense vector called an embedding. In this project, the embedding model is used for semantic matching:
+
+- the candidate query text is generated from selected skills, sectors, and optional resume text
+- internship descriptions are converted into sentence vectors based on titles, sectors, descriptions, skills, and work mode
+- the engine compares the direction and meaning of these vectors to estimate semantic similarity
+
+The role of the model is not to decide eligibility directly. Instead, it enriches the text relevance component and helps catch meaning that simple keyword overlap might miss.
+
+For example:
+
+- a resume mentions �data science workflow�
+- an internship description mentions �machine learning project lifecycle�
+
+A pure keyword method might miss the semantic overlap, but the embedding model can represent both phrases in a vector space where similar meanings are closer.
+
+The model is loaded lazily in the embedding service, and if the model fails to load, the project falls back to TF-IDF rather than stopping the app.
+
+---
+
+## Embeddings in This Project
+
+Embeddings are vector representations of text that keep semantic meaning in numeric form.
+
+In this repository:
+
+- `all-MiniLM-L6-v2` is the transformer model used for sentence embeddings.
+- `backend/app/services/embeddings.py` defines the service that loads the model, encodes text, and caches internship embeddings.
+- `backend/app/data/embeddings.npy` stores the saved embedding matrix.
+- `backend/app/data/embedding_ids.json` stores the IDs matched to those vectors.
+
+The project also has a cache-based behavior:
+
+- if cached internship embeddings already exist, the recommender uses them
+- if not, it computes missing embeddings, stores them, and saves them on disk
+
+That makes the semantic similarity branch faster across future runs.
+
+---
+
+## Recommendation Technique Used
+
+The project uses a hybrid recommendation technique.
+
+It combines:
+
+- skill matching
+- sector matching
+- location and work-mode compatibility
+- TF-IDF lexical matching
+- transformer embedding similarity
+
+This combination is deliberate. It balances explainability and ranking quality:
+
+- `skill` and `sector` signals are easy for the user to understand.
+- `location` and `work mode` reflect practical constraints.
+- `text` signals provide a semantic layer using both word overlap and meaning similarity.
+
+The final score is normalized and clipped to a `0.0` to `1.0` range and then transformed into a match tier:
+
+- `strong` for scores above `0.75`
+- `good` for scores above `0.50`
+- `moderate` for scores above `0.25`
+- `exploratory` below that
+
+---
+
+## Why the Project Uses a Hybrid Model
+
+A pure TF-IDF approach sees words and phrase overlap, but it does not understand deeper semantic similarity.
+
+A pure transformer embedding approach can understand meaning but can be slower and harder to explain.
+
+The project combines both:
+
+- use `TF-IDF` for lexical explainability and fast sparse similarity
+- use `all-MiniLM-L6-v2` for semantic embedding similarity
+- use structured domain rules for skills, sectors, location, and education eligibility
+
+This results in a ranking engine that is both explainable and semantic-aware.
+
+---
+
+## Demo Scope and Data
+
+The project uses synthetic sample internship listings rather than live public data.
+
+The sample data was generated by the repo's seeding utilities and stored locally. It is suitable for a classroom, prototype, or local demo environment.
+
+---
+
+## Quick Start
+
+### Backend
+
 ```powershell
-# 1. Run automated setup (creates virtual environment, installs dependencies, migrates DB, seeds 120 internships)
-.\scripts\setup.ps1
-
-# 2. Start Backend Server (Terminal 1)
-.\scripts\run-backend.ps1
-
-# 3. Start Frontend Dev Server (Terminal 2)
-.\scripts\run-frontend.ps1
-```
-
-### On macOS / Linux (Bash)
-```bash
-# 1. Run automated setup
-chmod +x scripts/*.sh
-./scripts/setup.sh
-
-# 2. Start Backend Server (Terminal 1)
-./scripts/run-backend.sh
-
-# 3. Start Frontend Dev Server (Terminal 2)
-./scripts/run-frontend.sh
-```
-
----
-
-## Manual Step-by-Step Setup
-
-If you prefer running commands manually:
-
-### 1. Backend Setup
-From the repository root:
-```bash
 cd backend
-
-# Create isolated virtual environment (using Python 3.12)
-py -3.12 -m venv .venv        # On Windows
-# or: python3 -m venv .venv  # On macOS/Linux
-
-# Install dependencies using the isolated interpreter directly:
-.\.venv\Scripts\python.exe -m pip install --upgrade pip
 .\.venv\Scripts\python.exe -m pip install -r requirements-dev.txt
-
-# Run database migrations
 .\.venv\Scripts\python.exe -m alembic upgrade head
-
-# Seed reproducible taxonomy and 120 sample internships
 .\.venv\Scripts\python.exe seed.py
 ```
 
-### 2. Frontend Setup
-From the repository root:
-```bash
+### Frontend
+
+```powershell
 cd frontend
-
-# Install dependencies
 npm install
+npm run dev
+```
 
-# Start Vite development server
+### Run the Backend
+
+```powershell
+cd backend
+.\.venv\Scripts\python.exe -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+```
+
+### Run the Frontend
+
+```powershell
+cd frontend
 npm run dev
 ```
 
 ---
 
-## Local URLs
+## API Endpoints
 
-Once running, access the application at:
-- **Frontend Web App**: [http://127.0.0.1:5173](http://127.0.0.1:5173)
-- **Backend Health Check**: [http://127.0.0.1:8000/api/v1/health](http://127.0.0.1:8000/api/v1/health)
-- **Interactive Swagger API Docs**: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
-- **Alternative ReDoc Docs**: [http://127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc)
+The application exposes the API at the `/api/v1` prefix:
+
+- `GET /api/v1/health`
+- `GET /api/v1/options`
+- `POST /api/v1/recommendations`
+- `POST /api/v1/resume/parse`
 
 ---
 
-## Running Automated Tests & Verification
+## Testing
 
-Run the unified verification suite which executes backend tests, integration checks, frontend unit tests, and production build checks in one step:
+Backend tests and frontend tests are provided in the project.
 
-### Windows PowerShell
+Example:
+
 ```powershell
-powershell -ExecutionPolicy Bypass -File scripts\check.ps1
+cd backend
+.\.venv\Scripts\python.exe -m pytest -v
 ```
 
-### macOS / Linux
-```bash
-./scripts/check.sh
+```powershell
+cd frontend
+npm run test
 ```
 
-### Individual Test Commands
-- **Backend Tests (20 tests)**:
-  ```powershell
-  cd backend
-  .\.venv\Scripts\python.exe -m pytest -v
-  ```
-- **End-to-End Integration Smoke Test**:
-  ```powershell
-  .\backend\.venv\Scripts\python.exe scripts\smoke_test.py
-  ```
-- **Frontend Tests (Vitest)**:
-  ```bash
-  cd frontend
-  npm run test
-  ```
-- **Frontend Production Build Check**:
-  ```bash
-  cd frontend
-  npm run build
-  ```
-
 ---
 
-## Virtual Environment Isolation & Shell Activation
+## Summary
 
-This project maintains strict environment isolation in `backend/.venv`:
-- **Direct Interpreter (Recommended)**:
-  - Windows: `backend\.venv\Scripts\python.exe`
-  - macOS/Linux: `backend/.venv/bin/python`
-- **Shell Activation (Optional)**:
-  - PowerShell: `.\backend\.venv\Scripts\Activate.ps1`
-  - Windows Command Prompt (CMD): `backend\.venv\Scripts\activate.bat`
-  - macOS/Linux: `source backend/.venv/bin/activate`
+Internship Saathi is a local internship recommendation engine for the PM Internship Scheme-inspired domain. It receives a student profile from a four-step React wizard, validates and normalizes the profile, filters internships by eligibility, scores them through a hybrid system, and returns a ranked list of internship opportunities with reasons.
 
-> [!NOTE]
-> If PowerShell blocks `.ps1` script activation due to execution policies, do **not** alter your machine-wide security policy. Instead, simply invoke the Python binary directly via `backend\.venv\Scripts\python.exe` or open a Windows CMD prompt.
-
----
-
-## Troubleshooting Guide
-
-### 1. Port 8000 or 5173 Conflict
-If another program is already using port 8000 or 5173:
-- For the backend: edit `PORT=8000` in `backend/.env` (e.g. change to 8001), and update the Vite dev proxy target in `frontend/vite.config.ts`.
-- For the frontend: Vite will automatically suggest port 5174 if 5173 is occupied.
-
-### 2. Backend Connection Error in Frontend
-- Verify that Uvicorn is running in your backend terminal (`http://127.0.0.1:8000/api/v1/health` should return `{"status":"healthy"}`).
-- The Vite development server automatically proxies `/api/v1` requests to `http://127.0.0.1:8000`. If you run the frontend on a custom URL or standalone host, set `VITE_API_BASE_URL=http://127.0.0.1:8000/api/v1` in `frontend/.env`.
-
-### 3. Seed Idempotency & Deadline Refresh
-- Re-running `seed.py` is safe and idempotent; it will update existing records without creating duplicate rows.
-- If you wish to refresh synthetic deadlines relative to today for demo testing, run:
-  ```powershell
-  .\.venv\Scripts\python.exe seed.py --refresh-deadlines
-  ```
-
----
-
-## What Would Be Needed Before Real Public Deployment
-
-To transition this demonstration prototype into a production service:
-1. **Official Integration**: Secure, authenticated integrations with authorized government single-sign-on (SSO) and official scheme verification APIs.
-2. **Database Scaling**: Migrate from SQLite to an enterprise managed database such as PostgreSQL with read replicas and row-level security.
-3. **Identity & Access Management**: Role-based access control (RBAC) with Aadhaar e-KYC or mobile OTP conforming to national data privacy standards.
-4. **Security & Auditing**: End-to-end encryption at rest and in transit, comprehensive audit logging, rate limiting, and DDoS protection via a secure reverse proxy / CDN.
-5. **Human-in-the-Loop Supervision**: Verification workflows for partner employers offering internships to prevent fraud and wage exploitation.
+The project uses `all-MiniLM-L6-v2` as its sentence-transformer embedding model to generate semantic embeddings and perform semantic text matching. These embeddings are stored in the `backend/app/data` cache files and used together with TF-IDF, skill overlap, sector alignment, and location scoring to produce the final recommendation list.
