@@ -1,5 +1,6 @@
 from datetime import date
 from typing import List, Dict, Tuple, Optional, Any, Set
+import math
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
@@ -25,6 +26,7 @@ from app.services.normalization import (
     normalize_location_string,
     clean_text,
 )
+from app.services.embeddings import get_embedding_service, EmbeddingService
 
 # Baseline weights
 BASE_WEIGHT_SKILL = 0.40
@@ -32,12 +34,134 @@ BASE_WEIGHT_SECTOR = 0.30
 BASE_WEIGHT_LOCATION = 0.20
 BASE_WEIGHT_TEXT = 0.10
 
+# IDF cache for skill weighting
+_idf_cache: Optional[Dict[str, float]] = None
+
+
+def compute_skill_idf(internships: List[Internship]) -> Dict[str, float]:
+    """
+    Compute Inverse Document Frequency for each skill across all internships.
+    Rare skills get higher weight.
+    """
+    global _idf_cache
+    if _idf_cache is not None:
+        return _idf_cache
+
+    skill_doc_count: Dict[str, int] = {}
+    total_docs = len(internships)
+
+    for inst in internships:
+        inst_skills = {sk.code for sk in inst.required_skills}
+        for skill in inst_skills:
+            skill_doc_count[skill] = skill_doc_count.get(skill, 0) + 1
+
+    # Compute IDF: log(N / (df + 1)) + 1 to ensure positive values
+    # Adding 1 to df prevents division by zero, adding 1 to result ensures minimum weight of 1
+    idf = {}
+    for skill, df in skill_doc_count.items():
+        idf[skill] = math.log(total_docs / (df + 1)) + 1.0
+
+    # Normalize IDF values to [0.5, 2.0] range for reasonable weighting
+    if idf:
+        min_idf = min(idf.values())
+        max_idf = max(idf.values())
+        if max_idf > min_idf:
+            for skill in idf:
+                # Scale to [0.5, 2.0]
+                idf[skill] = 0.5 + 1.5 * (idf[skill] - min_idf) / (max_idf - min_idf)
+        else:
+            for skill in idf:
+                idf[skill] = 1.0
+
+    _idf_cache = idf
+    return idf
+
+
+def calculate_skill_score(
+    candidate_skills: Set[str],
+    internship_skills: Set[str],
+    internship_allows_no_skills: bool,
+    idf_weights: Dict[str, float],
+    has_user_skills: bool,
+) -> Tuple[Optional[float], List[ReasonCode]]:
+    """
+    Calculate skill score using F1-style harmonic mean with IDF weighting.
+
+    Returns: (skill_score, reason_codes)
+    """
+    reasons: List[ReasonCode] = []
+
+    # Zero-skill listing handling
+    if len(internship_skills) == 0 or internship_allows_no_skills:
+        if has_user_skills:
+            # Candidate has skills but listing doesn't require any
+            return 0.5, [ReasonCode(
+                code="NO_PRIOR_SKILLS_REQUIRED",
+                params={},
+                text_en="Open to beginners: no prior specialized skills required.",
+                text_hi="शुरुआती उम्मीदवारों के लिए खुला: किसी पूर्व विशिष्ट कौशल की आवश्यकता नहीं।"
+            )]
+        else:
+            # Both candidate and listing have no skills - neutral beginner match
+            return 0.8, [ReasonCode(
+                code="NO_PRIOR_SKILLS_REQUIRED",
+                params={},
+                text_en="Open to beginners: no prior specialized skills required.",
+                text_hi="शुरुआती उम्मीदवारों के लिए खुला: किसी पूर्व विशिष्ट कौशल की आवश्यकता नहीं।"
+            )]
+
+    # Candidate has no skills but listing requires them
+    if not has_user_skills or len(candidate_skills) == 0:
+        return None, []  # N/A - weight will be renormalized
+
+    # Both have skills - compute F1-style harmonic mean with IDF weighting
+    overlap = candidate_skills.intersection(internship_skills)
+
+    if len(overlap) == 0:
+        return 0.0, []  # No overlap
+
+    # IDF-weighted coverage: sum of IDF for matched skills / sum of IDF for all required skills
+    matched_idf_sum = sum(idf_weights.get(s, 1.0) for s in overlap)
+    required_idf_sum = sum(idf_weights.get(s, 1.0) for s in internship_skills)
+    candidate_idf_sum = sum(idf_weights.get(s, 1.0) for s in candidate_skills)
+
+    coverage = matched_idf_sum / required_idf_sum if required_idf_sum > 0 else 0.0
+    relevance = matched_idf_sum / min(candidate_idf_sum, required_idf_sum) if min(candidate_idf_sum, required_idf_sum) > 0 else 0.0
+
+    # F1-style harmonic mean
+    if coverage + relevance > 0:
+        skill_score = 2 * coverage * relevance / (coverage + relevance)
+    else:
+        skill_score = 0.0
+
+    # Clamp to [0, 1]
+    skill_score = max(0.0, min(1.0, skill_score))
+
+    # Add reason code with matched skill names
+    if overlap:
+        matched_names = [s.replace("_", " ").title() for s in overlap]
+        reasons.append(ReasonCode(
+            code="SKILL_MATCH_EXACT",
+            params={"matched_skills": matched_names},
+            text_en=f"Matches your skills: {', '.join(matched_names[:3])}{'...' if len(matched_names) > 3 else ''}.",
+            text_hi=f"आपके कौशलों से मेल खाता है: {', '.join(matched_names[:3])}{'...' if len(matched_names) > 3 else ''}।"
+        ))
+
+    return skill_score, reasons
+
+
 class RecommenderEngine:
     def __init__(self):
         self.vectorizer: Optional[TfidfVectorizer] = None
         self.corpus_matrix: Optional[Any] = None
         self.internship_ids: List[str] = []
         self._cache_key: Optional[int] = None
+        self._embedding_service: Optional[EmbeddingService] = None
+
+    def _get_embedding_service(self) -> EmbeddingService:
+        if self._embedding_service is None:
+            self._embedding_service = get_embedding_service()
+        return self._embedding_service
 
     def build_corpus(self, internships: List[Internship]):
         """Fit TF-IDF on internship corpus and cache matrix."""
@@ -144,7 +268,8 @@ class RecommenderEngine:
         profile: CandidateProfile,
         db: Session,
         limit: int = 5,
-        reference_date: Optional[date] = None
+        reference_date: Optional[date] = None,
+        resume_text: Optional[str] = None
     ) -> RecommendationResponse:
         today = reference_date or date.today()
 
@@ -177,8 +302,6 @@ class RecommenderEngine:
         for i in all_internships:
             # Education eligibility check
             accepted_codes = {e.code for e in i.accepted_educations}
-            # If "any" is accepted, candidate is eligible regardless of qualification
-            # Otherwise, candidate's qualification must be specifically in accepted_codes
             is_edu_eligible = ("any" in accepted_codes) or (norm_education in accepted_codes)
             if not is_edu_eligible:
                 continue
@@ -190,7 +313,6 @@ class RecommenderEngine:
 
             # Mandatory Location constraint
             if profile.is_location_mandatory and norm_state:
-                # If remote, and candidate allows remote or work mode is remote, acceptable
                 if i.work_mode.lower() == "remote":
                     pass
                 else:
@@ -215,16 +337,18 @@ class RecommenderEngine:
                 profile_summary_hi="आपकी अनिवार्य पात्रता मानदंडों से मेल खाने वाला कोई इंटर्नशिप नहीं मिला।"
             )
 
-        # Step 3: Fit TF-IDF matrix on eligible corpus
+        # Step 3: Prepare scoring components
         self.ensure_corpus_fitted(eligible)
         corpus_id_to_idx = {i_id: idx for idx, i_id in enumerate(self.internship_ids)}
 
-        # Build candidate query text for TF-IDF
+        # Build candidate query text for TF-IDF and embeddings
         query_parts = []
         if norm_skills:
             query_parts.extend([s.replace("_", " ") for s in norm_skills])
         if norm_sectors:
             query_parts.extend([s.replace("_", " ") for s in norm_sectors])
+        if resume_text:
+            query_parts.append(resume_text[:500])  # Limit resume text contribution
         query_text = clean_text(" ".join(query_parts))
 
         query_vec = None
@@ -234,10 +358,22 @@ class RecommenderEngine:
             except Exception:
                 query_vec = None
 
+        # Get embedding service for semantic similarity
+        embedding_service = self._get_embedding_service()
+        candidate_embedding = None
+        if query_text:
+            candidate_embedding = embedding_service.encode(query_text)
+
+        # Pre-compute internship embeddings
+        internship_embeddings = embedding_service.encode_internships(eligible)
+
+        # Compute IDF weights for skills
+        idf_weights = compute_skill_idf(eligible)
+
         has_user_skills = len(norm_skills) > 0
         has_user_sectors = len(norm_sectors) > 0
         has_user_location = bool(norm_state or norm_district or (pref_work_mode != "any"))
-        has_user_text = bool(query_vec is not None and query_vec.getnnz() > 0)
+        has_user_text = bool(query_vec is not None and query_vec.getnnz() > 0) or candidate_embedding is not None
 
         # Check if candidate profile is completely minimal
         is_limited_profile = not (has_user_skills or has_user_sectors or has_user_location)
@@ -246,35 +382,19 @@ class RecommenderEngine:
 
         for inst in eligible:
             reasons: List[ReasonCode] = []
-            
+
             # --- 1. Skill Overlap ---
             inst_skills_codes = {sk.code for sk in inst.required_skills}
             inst_skills_display = {sk.code: sk.name_en for sk in inst.required_skills}
 
-            skill_score: Optional[float] = None
-            if len(inst_skills_codes) == 0 or inst.allows_no_skills:
-                # Internship explicitly accepts candidates without listed skills
-                skill_score = 1.0 if not has_user_skills else 0.8
-                reasons.append(ReasonCode(
-                    code="NO_PRIOR_SKILLS_REQUIRED",
-                    params={},
-                    text_en="Open to beginners: no prior specialized skills required.",
-                    text_hi="शुरुआती उम्मीदवारों के लिए खुला: किसी पूर्व विशिष्ट कौशल की आवश्यकता नहीं।"
-                ))
-            elif has_user_skills:
-                overlap = inst_skills_codes.intersection(set(norm_skills))
-                skill_score = len(overlap) / len(inst_skills_codes)
-                if len(overlap) > 0:
-                    matched_names = [inst_skills_display.get(c, c) for c in overlap]
-                    reasons.append(ReasonCode(
-                        code="SKILL_MATCH",
-                        params={"matched_skills": matched_names},
-                        text_en=f"Matches your listed skills ({', '.join(matched_names[:3])}).",
-                        text_hi=f"आपके सूचीबद्ध कौशलों से मेल खाता है ({', '.join(matched_names[:3])})।"
-                    ))
-            else:
-                # User provided no skills and internship requires them
-                skill_score = None  # Not applicable, renormalize
+            skill_score, skill_reasons = calculate_skill_score(
+                candidate_skills=set(norm_skills),
+                internship_skills=inst_skills_codes,
+                internship_allows_no_skills=inst.allows_no_skills,
+                idf_weights=idf_weights,
+                has_user_skills=has_user_skills,
+            )
+            reasons.extend(skill_reasons)
 
             missing_skills = [
                 inst_skills_display.get(code, code)
@@ -310,16 +430,40 @@ class RecommenderEngine:
             if loc_reason:
                 reasons.append(loc_reason)
 
-            # --- 4. Text Cosine Similarity ---
+            # --- 4. Text Cosine Similarity (TF-IDF + Embeddings hybrid) ---
             text_score: Optional[float] = None
+            tfidf_score = None
+            embedding_score = None
+
+            # TF-IDF component
             if has_user_text and query_vec is not None and self.corpus_matrix is not None:
                 c_idx = corpus_id_to_idx.get(inst.id)
                 if c_idx is not None:
                     inst_vec = self.corpus_matrix[c_idx]
                     sim = cosine_similarity(query_vec, inst_vec)[0][0]
-                    text_score = float(max(0.0, min(1.0, sim)))
+                    tfidf_score = float(max(0.0, min(1.0, sim)))
+
+            # Embedding component (semantic similarity)
+            if candidate_embedding is not None and inst.id in internship_embeddings:
+                inst_emb = internship_embeddings[inst.id]
+                if inst_emb is not None:
+                    # Cosine similarity between normalized embeddings
+                    sim = np.dot(candidate_embedding, inst_emb) / (
+                        np.linalg.norm(candidate_embedding) * np.linalg.norm(inst_emb) + 1e-8
+                    )
+                    embedding_score = float(max(0.0, min(1.0, sim)))
+
+            # Combine TF-IDF and embeddings (prefer embeddings when available)
+            if embedding_score is not None:
+                text_score = embedding_score
+                if tfidf_score is not None:
+                    # Blend: 70% embeddings, 30% TF-IDF for robustness
+                    text_score = 0.7 * embedding_score + 0.3 * tfidf_score
+            elif tfidf_score is not None:
+                text_score = tfidf_score
 
             # --- Dynamic Weight Renormalization ---
+            # Only renormalize when CANDIDATE omits an input, never because LISTING is missing data
             weights = {
                 "skill": BASE_WEIGHT_SKILL if skill_score is not None else 0.0,
                 "sector": BASE_WEIGHT_SECTOR if sector_score is not None else 0.0,
@@ -440,5 +584,6 @@ class RecommenderEngine:
             profile_summary_en=profile_summary_en,
             profile_summary_hi=profile_summary_hi
         )
+
 
 recommender = RecommenderEngine()

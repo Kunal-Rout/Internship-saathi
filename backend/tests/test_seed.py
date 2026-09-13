@@ -33,9 +33,9 @@ def test_seed_idempotency(clean_db: Session):
     count_sectors_1 = clean_db.query(Sector).count()
     count_skills_1 = clean_db.query(Skill).count()
 
-    assert count_internships_1 == 120
+    assert count_internships_1 == 150
     assert count_sectors_1 >= 10
-    assert count_skills_1 >= 25
+    assert count_skills_1 >= 40
 
     # Run seed second time
     seed_taxonomy(clean_db)

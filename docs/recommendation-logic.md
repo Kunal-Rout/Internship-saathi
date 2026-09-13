@@ -21,6 +21,7 @@ Candidate Submission
   - Map education alias to canonical code (e.g., "12th" -> "twelfth_pass")
   - Deduplicate & clean skills and sectors
   - Resolve home state and district
+  - Parse resume text (optional, in-memory only)
         │
         ▼
 [Step 2: Hard Eligibility Filters]
@@ -31,14 +32,15 @@ Candidate Submission
         │
         ▼
 [Step 3: Component Scoring (Bounded [0.0, 1.0])]
-  - Skill Overlap Score (S_skill)
+  - Skill Overlap Score (S_skill) — F1-style harmonic mean with IDF weighting
   - Sector Interest Match (S_sector)
   - Location Compatibility (S_loc)
-  - TF-IDF Text Cosine Similarity (S_text)
+  - Semantic Similarity (S_text) — Sentence embeddings (primary) + TF-IDF (fallback)
         │
         ▼
 [Step 4: Dynamic Weight Renormalization]
   - Non-applicable components have their base weights redistributed proportionally
+  - Only renormalize when CANDIDATE omits input, never because LISTING is missing data
         │
         ▼
 [Step 5: Deterministic Tie-Breaking & Top-5 Selection]
@@ -55,23 +57,35 @@ The default baseline weights are:
 - **Skill Overlap**: $W_{skill} = 0.40$
 - **Sector Interest**: $W_{sector} = 0.30$
 - **Location Compatibility**: $W_{loc} = 0.20$
-- **TF-IDF Similarity**: $W_{text} = 0.10$
+- **Semantic Similarity**: $W_{text} = 0.10$
 
 $$\sum W_{base} = 1.00$$
 
 ### 3.2 Component Definitions
 
-#### A. Skill Overlap ($S_{skill}$)
-Let $C_{skills}$ be the candidate's normalized skills, and $I_{skills}$ be the internship's required skills:
-- If $|I_{skills}| == 0$ or the internship has `allows_no_skills == True`:
-  - If candidate has no skills: $S_{skill} = 1.0$ (perfect beginner match).
-  - If candidate has skills: $S_{skill} = 0.8$.
-  - Reason code: `NO_PRIOR_SKILLS_REQUIRED`.
-- If $|I_{skills}| > 0$ and $|C_{skills}| > 0$:
-  $$S_{skill} = \frac{|C_{skills} \cap I_{skills}|}{|I_{skills}|}$$
-  - Reason code: `SKILL_MATCH` (lists up to 3 matched skills).
-- If $|C_{skills}| == 0$ and $|I_{skills}| > 0$:
-  - $S_{skill}$ is marked **Not Applicable (N/A)**. Its weight is redistributed via renormalization.
+#### A. Skill Overlap ($S_{skill}$) — F1-style Harmonic Mean with IDF Weighting
+
+Let $C_{skills}$ be the candidate's normalized skills, and $I_{skills}$ be the internship's required skills.
+
+**IDF Weighting**: Each skill $s$ has an Inverse Document Frequency weight $w_{IDF}(s)$ computed across all active internships:
+$$w_{IDF}(s) = \log\left(\frac{N}{df(s) + 1}\right) + 1$$
+Normalized to range $[0.5, 2.0]$, where $N$ = total internships, $df(s)$ = number of internships requiring skill $s$.
+
+**Zero-skill listings** (allows_no_skills = true or empty skill list):
+- If candidate has no skills: $S_{skill} = 0.8$ (perfect beginner match)
+- If candidate has skills: $S_{skill} = 0.5$ (neutral — eligible but not a skill match)
+- Reason code: `NO_PRIOR_SKILLS_REQUIRED`
+
+**Candidate has no skills but listing requires them**:
+- $S_{skill}$ is marked **Not Applicable (N/A)**. Its weight is redistributed via renormalization.
+
+**Both have skills**: Compute F1-style harmonic mean with IDF weighting:
+$$\text{coverage} = \frac{\sum_{s \in C \cap I} w_{IDF}(s)}{\sum_{s \in I} w_{IDF}(s)}$$
+$$\text{relevance} = \frac{\sum_{s \in C \cap I} w_{IDF}(s)}{\min\left(\sum_{s \in C} w_{IDF}(s), \sum_{s \in I} w_{IDF}(s)\right)}$$
+$$S_{skill} = \begin{cases} 0 & \text{if } C \cap I = \emptyset \\ \frac{2 \times \text{coverage} \times \text{relevance}}{\text{coverage} + \text{relevance}} & \text{otherwise} \end{cases}$$
+Clamped to $[0.0, 1.0]$.
+
+- Reason code: `SKILL_MATCH_EXACT` (lists matched skill names)
 
 #### B. Sector Interest Match ($S_{sector}$)
 Let $C_{sectors}$ be the set of sectors selected by the candidate:
@@ -94,20 +108,26 @@ Based on a documented deterministic preference matrix:
 - If no state/district was selected and mode is "any":
   - $S_{loc}$ is marked **Not Applicable (N/A)**.
 
-#### D. TF-IDF Text Cosine Similarity ($S_{text}$)
-- A `TfidfVectorizer(stop_words='english', max_features=1000)` is pre-fitted over the active internship corpus (concatenation of title, sector, description, and skills).
-- The candidate's query document combines their normalized skills and sector names.
-- Cosine similarity is computed between the query vector and the cached internship document vector:
-  $$S_{text} = \cos(\mathbf{q}, \mathbf{d}_i) = \frac{\mathbf{q} \cdot \mathbf{d}_i}{\|\mathbf{q}\| \|\mathbf{d}_i\|}$$
-  Bounded within $[0.0, 1.0]$.
-- If candidate provided neither skills nor sectors:
+#### D. Semantic Similarity ($S_{text}$)
+**Primary: Sentence Embeddings (all-MiniLM-L6-v2)**
+- At seed time, compute embedding for each internship from "title + organization + sector + description + skill names" and cache matrix on disk (`backend/data/embeddings.npy`).
+- At request time, embed candidate's combined profile text (skills + sectors + resume_text).
+- Cosine similarity between normalized embeddings.
+
+**Fallback: TF-IDF**
+- If model cannot be loaded (offline, no cache), fall back gracefully to TF-IDF pipeline.
+- `TfidfVectorizer(stop_words='english', max_features=1000)` pre-fitted over active internship corpus.
+- Cosine similarity between query vector and internship document vector.
+
+**Hybrid**: When both available, blend 70% embeddings + 30% TF-IDF for robustness.
+- If candidate provided neither skills nor sectors nor resume text:
   - $S_{text}$ is marked **Not Applicable (N/A)**.
 
 ---
 
 ## 4. Dynamic Weight Renormalization
 
-When optional inputs are omitted or a component is Not Applicable, the engine **never scores the missing input as zero**. Instead, it dynamically renormalizes the remaining active components so the effective weights always sum to $1.00$:
+When optional inputs are omitted by the **CANDIDATE** (not the listing), the engine dynamically renormalizes the remaining active components so the effective weights always sum to $1.00$:
 
 $$\Omega_{active} = \{k \in \{\text{skill, sector, loc, text}\} \mid S_k \neq \text{N/A}\}$$
 
@@ -123,6 +143,8 @@ If a candidate only provides education and sector interests (omitting skills and
 - $W_{eff, text} = 0.10 / 0.40 = 0.25$
 - Effective weights sum to $1.00$.
 
+**Key Change**: Zero-skill listings (allows_no_skills = true) do NOT cause skill weight renormalization. They receive a fixed neutral score (0.5 or 0.8) and keep the full 0.40 skill weight.
+
 ---
 
 ## 5. Match Tiers and Categorization
@@ -135,3 +157,31 @@ Total relative score is translated into clear qualitative tiers:
 
 When a candidate submits only education and no other preferences, the system returns eligible starter opportunities with `has_limited_profile = True` and an explicit note:
 > *"Limited profile information provided. Showing eligible starter opportunities based on your education."*
+
+---
+
+## 6. Reason Codes
+
+| Code | Description | Parameters |
+|------|-------------|------------|
+| `SKILL_MATCH_EXACT` | Exact skill matches with IDF weighting | `matched_skills`: list of skill names |
+| `TECH_STACK_MATCH` | Multiple related technical skills matched | `matched_skills`: list of skill names |
+| `SECTOR_INTEREST` | Sector matches candidate interest | `sector`: sector name |
+| `SAME_DISTRICT` | Same district as candidate | `district`, `state` |
+| `SAME_STATE` | Same state as candidate | `state` |
+| `RELOCATION_FRIENDLY` | Different state but willing to relocate | `state` |
+| `REMOTE_MATCH` | Matches preferred remote mode | — |
+| `REMOTE_FRIENDLY` | Remote opportunity compatible with hybrid/any | — |
+| `NO_PRIOR_SKILLS_REQUIRED` | Listing open to beginners | — |
+| `LIMITED_PROFILE_EXPLORATION` | Minimal profile, general suggestion | — |
+
+---
+
+## 7. Resume Parsing (Privacy-Preserving)
+
+- **Endpoint**: `POST /api/v1/resume/parse`
+- **Accepts**: PDF (via pypdf) or DOCX (via python-docx), max 5 MB
+- **Processing**: IN MEMORY ONLY — never written to disk, database, or logs
+- **Returns**: Detected skill codes, inferred education level, truncated resume text (first 2000 chars) for semantic matching
+- **Skill Matching**: Case-insensitive, alias-aware (e.g., "py" → python, "reactjs" → react, "ml" → machine_learning)
+- **Frontend**: Drop zone in Skills step, pre-selects detected skills as removable chips, shows bilingual privacy note

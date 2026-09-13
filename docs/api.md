@@ -204,3 +204,107 @@ Evaluates a candidate profile against eligible sample internships and computes r
 
 #### Error `422 Unprocessable Entity`
 Returned if education qualification is missing or unrecognized.
+
+---
+
+### 1.6 `POST /api/v1/resume/parse`
+Parses an uploaded resume (PDF or DOCX) and extracts skills for recommendation matching. **Privacy-preserving: processed in memory only, never stored.**
+
+#### Request
+- **Content-Type**: `multipart/form-data`
+- **Body**: `file` — PDF or DOCX file (max 5 MB)
+
+#### Response `200 OK`
+```json
+{
+  "detected_skills": ["python", "fastapi", "sql", "docker", "aws", "machine_learning", "pandas"],
+  "detected_education": "bachelors",
+  "resume_text": "Python developer with 2 years experience in Django and FastAPI. Skilled in SQL, PostgreSQL, Docker, and AWS. Machine learning experience with scikit-learn and pandas.",
+  "privacy_note_en": "Your resume is processed in memory and never stored.",
+  "privacy_note_hi": "आपका रिज्यूमे केवल मेमोरी में प्रोसेस किया जाता है और कभी स्टोर नहीं किया जाता।"
+}
+```
+
+#### Error `400 Bad Request`
+- Unsupported file type (only PDF and DOCX accepted)
+- Could not extract text from file (e.g., scanned/image-based PDF)
+
+#### Error `413 Payload Too Large`
+- File exceeds 5 MB limit
+
+---
+
+### 1.7 `POST /api/v1/recommendations` (Updated)
+Evaluates a candidate profile against eligible sample internships and computes ranked recommendations with component breakdown.
+
+#### Request Body (Updated)
+```json
+{
+  "profile": {
+    "education": "twelfth_pass",
+    "skills": ["python", "ms_excel"],
+    "sectors": ["it_software"],
+    "state": "Maharashtra",
+    "district": "Pune",
+    "preferred_work_mode": "any",
+    "is_work_mode_mandatory": false,
+    "is_location_mandatory": false,
+    "willing_to_relocate": true,
+    "resume_text": "Optional extracted resume text for semantic matching"
+  },
+  "limit": 5
+}
+```
+
+#### Response `200 OK` (Updated)
+```json
+{
+  "results": [
+    {
+      "internship": { "...": "..." },
+      "relative_score": 0.893,
+      "match_tier": "strong",
+      "component_scores": {
+        "skill_score": 0.85,
+        "sector_score": 1.0,
+        "location_score": 0.85,
+        "text_score": 0.72
+      },
+      "effective_weights": {
+        "skill_weight": 0.4,
+        "sector_weight": 0.3,
+        "location_weight": 0.2,
+        "text_weight": 0.1
+      },
+      "missing_skills": [],
+      "reasons": [
+        {
+          "code": "SKILL_MATCH_EXACT",
+          "params": { "matched_skills": ["Python Programming", "MS Excel", "FastAPI"] },
+          "text_en": "Matches your skills: Python Programming, MS Excel, FastAPI.",
+          "text_hi": "आपके कौशलों से मेल खाता है: Python Programming, MS Excel, FastAPI।"
+        }
+      ],
+      "is_sample": true
+    }
+  ],
+  "total_eligible": 45,
+  "has_limited_profile": false,
+  "profile_summary_en": "Evaluated 45 eligible opportunities based on your education (twelfth_pass). Returned top 5 relative matches.",
+  "profile_summary_hi": "...",
+  "disclaimer": "Demonstration prototype. Sample internships only. Not an official government portal."
+}
+```
+
+#### New Reason Codes
+| Code | Description |
+|------|-------------|
+| `SKILL_MATCH_EXACT` | Exact skill matches with IDF weighting (lists matched skills) |
+| `TECH_STACK_MATCH` | Multiple related technical skills matched |
+| `NO_PRIOR_SKILLS_REQUIRED` | Listing open to beginners (fixed score 0.5/0.8) |
+
+#### Scoring Changes
+- **Skill Score**: F1-style harmonic mean with IDF weighting (replaces simple overlap ratio)
+- **Zero-skill listings**: Fixed score 0.5 (candidate has skills) or 0.8 (beginner), no weight renormalization
+- **Weight Renormalization**: Only when candidate omits input, never because listing lacks data
+- **Semantic Similarity**: Sentence embeddings (all-MiniLM-L6-v2) with TF-IDF fallback

@@ -8,6 +8,7 @@ from app.api.routes.health import router as health_router
 from app.api.routes.options import router as options_router
 from app.api.routes.internships import router as internships_router
 from app.api.routes.recommendations import router as recommendations_router
+from app.api.routes.resume import router as resume_router
 
 # Configure basic logger without logging user profiles or sensitive data
 logging.basicConfig(level=logging.INFO)
@@ -52,6 +53,7 @@ app.include_router(health_router, prefix="/api/v1", tags=["Health"])
 app.include_router(options_router, prefix="/api/v1", tags=["Options"])
 app.include_router(internships_router, prefix="/api/v1", tags=["Internships"])
 app.include_router(recommendations_router, prefix="/api/v1", tags=["Recommendations"])
+app.include_router(resume_router, prefix="/api/v1")
 
 @app.get("/", tags=["Root"])
 def root():

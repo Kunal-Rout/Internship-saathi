@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
@@ -12,10 +12,17 @@ import {
   Search,
   AlertCircle,
   HelpCircle,
+  Upload,
+  FileText,
+  X,
+  Loader2,
 } from "lucide-react";
 import { ProgressBar } from "../components/ProgressBar";
-import { fetchOptions, fetchRecommendations } from "../services/api";
-import type { OptionsResponse, CandidateProfile } from "../types";
+import { fetchOptions, fetchRecommendations, parseResume } from "../services/api";
+import type { OptionsResponse, CandidateProfile, ParsedResumeResponse } from "../types";
+
+const MAX_SKILLS = 20;
+const MAX_SECTORS = 10;
 
 export const WizardPage: React.FC = () => {
   const { t, i18n } = useTranslation();
@@ -41,6 +48,14 @@ export const WizardPage: React.FC = () => {
   const [isLocationMandatory, setIsLocationMandatory] = useState<boolean>(false);
   const [willingToRelocate, setWillingToRelocate] = useState<boolean>(true);
 
+  // Resume upload state
+  const [resumeFile, setResumeFile] = useState<File | null>(null);
+  const [resumeText, setResumeText] = useState<string>("");
+  const [resumeDetectedSkills, setResumeDetectedSkills] = useState<string[]>([]);
+  const [resumeUploading, setResumeUploading] = useState<boolean>(false);
+  const [resumeError, setResumeError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   useEffect(() => {
     fetchOptions()
       .then((data) => {
@@ -49,7 +64,8 @@ export const WizardPage: React.FC = () => {
       })
       .catch((err) => {
         console.error(err);
-        setErrorMsg(err.message || "Failed to load options");
+        const message = err instanceof Error ? err.message : typeof err === "string" ? err : t("wizard.error_loading_options");
+        setErrorMsg(message || t("wizard.error_loading_options"));
         setLoadingOptions(false);
       });
   }, []);
@@ -70,9 +86,16 @@ export const WizardPage: React.FC = () => {
 
   const toggleSkill = (code: string) => {
     setIsBeginnerSkills(false);
-    setSelectedSkills((prev) =>
-      prev.includes(code) ? prev.filter((s) => s !== code) : [...prev, code]
-    );
+    setSelectedSkills((prev) => {
+      if (prev.includes(code)) {
+        return prev.filter((s) => s !== code);
+      }
+      if (prev.length >= MAX_SKILLS) {
+        setErrorMsg(`You can select at most ${MAX_SKILLS} skills.`);
+        return prev;
+      }
+      return [...prev, code];
+    });
   };
 
   const setBeginner = () => {
@@ -81,9 +104,61 @@ export const WizardPage: React.FC = () => {
   };
 
   const toggleSector = (code: string) => {
-    setSelectedSectors((prev) =>
-      prev.includes(code) ? prev.filter((s) => s !== code) : [...prev, code]
-    );
+    setSelectedSectors((prev) => {
+      if (prev.includes(code)) {
+        return prev.filter((s) => s !== code);
+      }
+      if (prev.length >= MAX_SECTORS) {
+        setErrorMsg(`You can select at most ${MAX_SECTORS} sectors.`);
+        return prev;
+      }
+      return [...prev, code];
+    });
+  };
+
+  const handleResumeUpload = async (file: File) => {
+    setResumeError(null);
+    setResumeUploading(true);
+
+    try {
+      const response: ParsedResumeResponse = await parseResume(file);
+      const detectedSkills = response.detected_skills.slice(0, MAX_SKILLS);
+
+      // Set detected skills from resume (user can deselect)
+      setResumeDetectedSkills(detectedSkills);
+      setSelectedSkills(detectedSkills);
+      setIsBeginnerSkills(false);
+
+      // Store resume text for semantic matching
+      setResumeText(response.resume_text);
+
+      setResumeFile(file);
+    } catch (err: any) {
+      const message = err.message || t("wizard.resume_upload_failed");
+      setResumeError(message);
+      setResumeFile(null);
+      setResumeText("");
+      setResumeDetectedSkills([]);
+    } finally {
+      setResumeUploading(false);
+    }
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      handleResumeUpload(file);
+    }
+  };
+
+  const removeResume = () => {
+    setResumeFile(null);
+    setResumeText("");
+    setResumeDetectedSkills([]);
+    setResumeError(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -97,16 +172,20 @@ export const WizardPage: React.FC = () => {
     setSubmitting(true);
     setErrorMsg(null);
 
+    const payloadSkills = selectedSkills.slice(0, MAX_SKILLS);
+    const payloadSectors = selectedSectors.slice(0, MAX_SECTORS);
+
     const profilePayload: CandidateProfile = {
       education,
-      skills: selectedSkills,
-      sectors: selectedSectors,
+      skills: payloadSkills,
+      sectors: payloadSectors,
       state: stateName || undefined,
       district: districtName || undefined,
       preferred_work_mode: workMode,
       is_work_mode_mandatory: isWorkModeMandatory,
       is_location_mandatory: isLocationMandatory,
       willing_to_relocate: willingToRelocate,
+      resume_text: resumeText || undefined,
     };
 
     try {
@@ -116,7 +195,8 @@ export const WizardPage: React.FC = () => {
       });
     } catch (err: any) {
       console.error(err);
-      setErrorMsg(err.message || "Failed to fetch recommendations from server.");
+      const message = err instanceof Error ? err.message : typeof err === "string" ? err : t("wizard.error_fetching_recommendations");
+      setErrorMsg(message || t("wizard.error_fetching_recommendations"));
     } finally {
       setSubmitting(false);
     }
@@ -234,6 +314,107 @@ export const WizardPage: React.FC = () => {
                 <HelpCircle className="w-4 h-4 text-saathi-600" />
                 <span>{t("wizard.not_sure_skills")}</span>
               </button>
+
+              {/* Resume Upload */}
+              <div className="space-y-3">
+                <label className="block text-xs font-bold text-civic-800">
+                  {t("wizard.upload_resume")}
+                </label>
+                <div className="relative">
+                  <input
+                    ref={fileInputRef}
+                    id="resume-upload"
+                    type="file"
+                    accept=".pdf,.docx"
+                    onChange={handleFileSelect}
+                    disabled={resumeUploading}
+                    className="sr-only"
+                  />
+                  <label
+                    htmlFor="resume-upload"
+                    className={`w-full p-4 rounded-xl border-2 border-dashed text-center cursor-pointer transition touch-target ${
+                      resumeUploading
+                        ? "border-civic-300 bg-civic-50 cursor-not-allowed"
+                        : "border-saathi-300 hover:border-saathi-500 hover:bg-saathi-50"
+                    }`}
+                  >
+                    {resumeUploading ? (
+                      <div className="flex flex-col items-center gap-2">
+                        <Loader2 className="w-6 h-6 text-saathi-600 animate-spin" />
+                        <span className="text-sm text-civic-700">{t("wizard.uploading")}</span>
+                      </div>
+                    ) : resumeFile ? (
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-3">
+                          <FileText className="w-6 h-6 text-saathi-600 flex-shrink-0" />
+                          <div>
+                            <p className="text-sm font-medium text-civic-900 truncate max-w-[200px]">
+                              {resumeFile.name}
+                            </p>
+                            <p className="text-xs text-civic-600">
+                              {(resumeFile.size / 1024).toFixed(1)} KB
+                            </p>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={removeResume}
+                          className="p-1.5 rounded-lg text-civic-500 hover:text-red-600 hover:bg-red-50 transition touch-target"
+                          aria-label={t("wizard.remove_resume")}
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center gap-2">
+                        <Upload className="w-8 h-8 text-saathi-400" />
+                        <span className="text-sm font-medium text-civic-700">
+                          {t("wizard.drop_resume")}
+                        </span>
+                        <span className="text-xs text-civic-500">
+                          {t("wizard.resume_formats")}
+                        </span>
+                      </div>
+                    )}
+                  </label>
+                </div>
+                {resumeError && (
+                  <p className="text-sm text-red-600 flex items-center gap-1.5" role="alert">
+                    <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                    {resumeError}
+                  </p>
+                )}
+                {resumeDetectedSkills.length > 0 && !resumeUploading && (
+                  <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-200">
+                    <p className="text-xs font-medium text-emerald-800 mb-2 flex items-center gap-1.5">
+                      <Check className="w-3.5 h-3.5" />
+                      {t("wizard.resume_skills_detected")}
+                    </p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {resumeDetectedSkills.map((code) => {
+                        const skill = options?.skills.find((s) => s.code === code);
+                        const name = skill ? (isHindi ? skill.name_hi : skill.name_en) : code;
+                        return (
+                          <span
+                            key={code}
+                            className="px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 border border-emerald-300"
+                          >
+                            {name}
+                          </span>
+                        );
+                      })}
+                    </div>
+                    <p className="text-xs text-emerald-700 mt-2">
+                      {t("wizard.resume_skills_note")}
+                    </p>
+                  </div>
+                )}
+                {/* Privacy note */}
+                <p className="text-xs text-civic-600 flex items-center gap-1.5">
+                  <HelpCircle className="w-3.5 h-3.5 text-saathi-500 flex-shrink-0" />
+                  <span>{t("wizard.privacy_note")}</span>
+                </p>
+              </div>
 
               {/* Skill Search Box */}
               <div className="relative">

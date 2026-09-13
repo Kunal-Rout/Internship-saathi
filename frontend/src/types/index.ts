@@ -92,6 +92,7 @@ export interface CandidateProfile {
   is_work_mode_mandatory: boolean;
   is_location_mandatory: boolean;
   willing_to_relocate: boolean;
+  resume_text?: string;
 }
 
 export interface ReasonCode {
@@ -133,4 +134,12 @@ export interface RecommendationResponse {
   profile_summary_en: string;
   profile_summary_hi: string;
   disclaimer: string;
+}
+
+export interface ParsedResumeResponse {
+  detected_skills: string[];
+  detected_education: string | null;
+  resume_text: string;
+  privacy_note_en: string;
+  privacy_note_hi: string;
 }

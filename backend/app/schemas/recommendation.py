@@ -5,24 +5,27 @@ from app.schemas.internship import InternshipDetail
 class CandidateProfile(BaseModel):
     # Required: Education category code (e.g., "tenth_pass", "twelfth_pass", "iti", "diploma", "bachelors", "masters")
     education: str = Field(..., max_length=50, description="Canonical education code")
-    
+
     # Optional skills (bounded array)
     skills: List[str] = Field(default_factory=list, max_length=20, description="List of skill codes or free-text skills")
-    
+
     # Optional sector interests (bounded array)
     sectors: List[str] = Field(default_factory=list, max_length=10, description="List of sector codes")
-    
+
     # Location preferences
     state: Optional[str] = Field(None, max_length=100)
     district: Optional[str] = Field(None, max_length=100)
-    
+
     # Work mode preference: "onsite", "hybrid", "remote", or "any"
     preferred_work_mode: str = Field("any", max_length=20)
-    
+
     # Explicit constraint flags (Preferences vs Mandatory constraints)
     is_work_mode_mandatory: bool = Field(False, description="If True, only internships with exact work_mode are considered")
     is_location_mandatory: bool = Field(False, description="If True, only internships in the specified district/state are considered")
     willing_to_relocate: bool = Field(True, description="If True, boosts score for opportunities outside home district/state")
+
+    # Optional resume text for semantic matching
+    resume_text: Optional[str] = Field(None, max_length=5000, description="Extracted resume text for semantic matching")
 
 class RecommendationRequest(BaseModel):
     profile: CandidateProfile

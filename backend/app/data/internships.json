@@ -2797,5 +2797,829 @@
       "diploma",
       "bachelors"
     ]
+  },
+  {
+    "id": "INT-121",
+    "title": "Data Scientist Intern",
+    "organization_name": "Sahayog Solar Energy Trust",
+    "description": "Build exploratory analyses, feature pipelines, and baseline models using Python. This 100% synthetic demonstration internship is organized by Sahayog Solar Energy Trust located at Bengaluru, Karnataka. Interns will gain practical on-the-ground experience, mentorship from industry supervisors, and a monthly stipend of INR 12,000. Demonstration prototype. Sample internships only. Not an official government portal.",
+    "sector_code": "it_software",
+    "state": "Karnataka",
+    "district": "Bengaluru",
+    "work_mode": "onsite",
+    "duration_months": 6,
+    "stipend_inr": 12000,
+    "deadline": "2026-10-11",
+    "is_active": true,
+    "allows_no_skills": false,
+    "is_sample": true,
+    "required_skills": [
+      "python",
+      "statistics",
+      "pandas",
+      "machine_learning",
+      "sql"
+    ],
+    "accepted_educations": [
+      "bachelors",
+      "masters"
+    ]
+  },
+  {
+    "id": "INT-122",
+    "title": "Data Analyst Intern",
+    "organization_name": "Vikas Rural Health Care",
+    "description": "Clean datasets, write SQL queries, and produce dashboards for programme monitoring. This 100% synthetic demonstration internship is organized by Vikas Rural Health Care located at Pune, Maharashtra. Interns will gain practical on-the-ground experience, mentorship from industry supervisors, and a monthly stipend of INR 10,000. Demonstration prototype. Sample internships only. Not an official government portal.",
+    "sector_code": "it_software",
+    "state": "Maharashtra",
+    "district": "Pune",
+    "work_mode": "hybrid",
+    "duration_months": 6,
+    "stipend_inr": 10000,
+    "deadline": "2026-10-12",
+    "is_active": true,
+    "allows_no_skills": false,
+    "is_sample": true,
+    "required_skills": [
+      "python",
+      "sql",
+      "pandas",
+      "data_visualization",
+      "ms_excel",
+      "statistics"
+    ],
+    "accepted_educations": [
+      "twelfth_pass",
+      "diploma",
+      "bachelors"
+    ]
+  },
+  {
+    "id": "INT-123",
+    "title": "Software Development Engineer (SDE) Intern",
+    "organization_name": "Sankalp Supply Chain Network",
+    "description": "Implement product features, write unit tests, and participate in code reviews. This 100% synthetic demonstration internship is organized by Sankalp Supply Chain Network located at New Delhi, Delhi. Interns will gain practical on-the-ground experience, mentorship from industry supervisors, and a monthly stipend of INR 12,500. Demonstration prototype. Sample internships only. Not an official government portal.",
+    "sector_code": "it_software",
+    "state": "Delhi",
+    "district": "New Delhi",
+    "work_mode": "remote",
+    "duration_months": 6,
+    "stipend_inr": 12500,
+    "deadline": "2026-10-13",
+    "is_active": true,
+    "allows_no_skills": false,
+    "is_sample": true,
+    "required_skills": [
+      "python",
+      "java",
+      "git",
+      "rest_apis",
+      "sql"
+    ],
+    "accepted_educations": [
+      "diploma",
+      "bachelors"
+    ]
+  },
+  {
+    "id": "INT-124",
+    "title": "Machine Learning Intern",
+    "organization_name": "Samriddhi Textile Guild",
+    "description": "Train and evaluate classical ML models and document experiment results. This 100% synthetic demonstration internship is organized by Samriddhi Textile Guild located at Chennai, Tamil Nadu. Interns will gain practical on-the-ground experience, mentorship from industry supervisors, and a monthly stipend of INR 12,000. Demonstration prototype. Sample internships only. Not an official government portal.",
+    "sector_code": "it_software",
+    "state": "Tamil Nadu",
+    "district": "Chennai",
+    "work_mode": "onsite",
+    "duration_months": 6,
+    "stipend_inr": 12000,
+    "deadline": "2026-10-14",
+    "is_active": true,
+    "allows_no_skills": false,
+    "is_sample": true,
+    "required_skills": [
+      "python",
+      "machine_learning",
+      "numpy",
+      "pandas",
+      "statistics"
+    ],
+    "accepted_educations": [
+      "bachelors",
+      "masters"
+    ]
+  },
+  {
+    "id": "INT-125",
+    "title": "Backend Developer (Python/FastAPI) Intern",
+    "organization_name": "Atmanirbhar Skills Foundation",
+    "description": "Design REST endpoints with FastAPI, persist data with SQL, and write API tests. This 100% synthetic demonstration internship is organized by Atmanirbhar Skills Foundation located at Noida, Uttar Pradesh. Interns will gain practical on-the-ground experience, mentorship from industry supervisors, and a monthly stipend of INR 11,500. Demonstration prototype. Sample internships only. Not an official government portal.",
+    "sector_code": "it_software",
+    "state": "Uttar Pradesh",
+    "district": "Noida",
+    "work_mode": "hybrid",
+    "duration_months": 6,
+    "stipend_inr": 11500,
+    "deadline": "2026-10-15",
+    "is_active": true,
+    "allows_no_skills": false,
+    "is_sample": true,
+    "required_skills": [
+      "python",
+      "fastapi",
+      "rest_apis",
+      "sql",
+      "git",
+      "docker"
+    ],
+    "accepted_educations": [
+      "diploma",
+      "bachelors"
+    ]
+  },
+  {
+    "id": "INT-126",
+    "title": "Frontend Developer (React) Intern",
+    "organization_name": "Shramik Hospitality Group",
+    "description": "Build accessible React interfaces with TypeScript, HTML, and CSS. This 100% synthetic demonstration internship is organized by Shramik Hospitality Group located at Ahmedabad, Gujarat. Interns will gain practical on-the-ground experience, mentorship from industry supervisors, and a monthly stipend of INR 11,000. Demonstration prototype. Sample internships only. Not an official government portal.",
+    "sector_code": "it_software",
+    "state": "Gujarat",
+    "district": "Ahmedabad",
+    "work_mode": "remote",
+    "duration_months": 6,
+    "stipend_inr": 11000,
+    "deadline": "2026-10-16",
+    "is_active": true,
+    "allows_no_skills": false,
+    "is_sample": true,
+    "required_skills": [
+      "react",
+      "typescript",
+      "javascript",
+      "html_css",
+      "git"
+    ],
+    "accepted_educations": [
+      "diploma",
+      "bachelors"
+    ]
+  },
+  {
+    "id": "INT-127",
+    "title": "DevOps Intern",
+    "organization_name": "Panchayat Tech Innovations",
+    "description": "Containerize services, maintain CI/CD pipelines, and assist with Linux operations. This 100% synthetic demonstration internship is organized by Panchayat Tech Innovations located at Kolkata, West Bengal. Interns will gain practical on-the-ground experience, mentorship from industry supervisors, and a monthly stipend of INR 11,500. Demonstration prototype. Sample internships only. Not an official government portal.",
+    "sector_code": "it_software",
+    "state": "West Bengal",
+    "district": "Kolkata",
+    "work_mode": "onsite",
+    "duration_months": 6,
+    "stipend_inr": 11500,
+    "deadline": "2026-10-17",
+    "is_active": true,
+    "allows_no_skills": false,
+    "is_sample": true,
+    "required_skills": [
+      "docker",
+      "git",
+      "linux",
+      "ci_cd",
+      "kubernetes"
+    ],
+    "accepted_educations": [
+      "diploma",
+      "bachelors"
+    ]
+  },
+  {
+    "id": "INT-128",
+    "title": "QA/Test Automation Intern",
+    "organization_name": "Pragati Automotive Solutions",
+    "description": "Author automated UI and API tests using Python, Selenium, and CI pipelines. This 100% synthetic demonstration internship is organized by Pragati Automotive Solutions located at Bhubaneswar, Odisha. Interns will gain practical on-the-ground experience, mentorship from industry supervisors, and a monthly stipend of INR 9,000. Demonstration prototype. Sample internships only. Not an official government portal.",
+    "sector_code": "it_software",
+    "state": "Odisha",
+    "district": "Bhubaneswar",
+    "work_mode": "hybrid",
+    "duration_months": 4,
+    "stipend_inr": 9000,
+    "deadline": "2026-10-18",
+    "is_active": true,
+    "allows_no_skills": false,
+    "is_sample": true,
+    "required_skills": [
+      "test_automation",
+      "python",
+      "selenium",
+      "git",
+      "ci_cd"
+    ],
+    "accepted_educations": [
+      "twelfth_pass",
+      "diploma",
+      "bachelors"
+    ]
+  },
+  {
+    "id": "INT-129",
+    "title": "Business Intelligence Intern",
+    "organization_name": "Gramin Handloom Co-op",
+    "description": "Model reporting datasets and publish Power BI / visualization dashboards. This 100% synthetic demonstration internship is organized by Gramin Handloom Co-op located at Indore, Madhya Pradesh. Interns will gain practical on-the-ground experience, mentorship from industry supervisors, and a monthly stipend of INR 10,500. Demonstration prototype. Sample internships only. Not an official government portal.",
+    "sector_code": "it_software",
+    "state": "Madhya Pradesh",
+    "district": "Indore",
+    "work_mode": "remote",
+    "duration_months": 6,
+    "stipend_inr": 10500,
+    "deadline": "2026-10-19",
+    "is_active": true,
+    "allows_no_skills": false,
+    "is_sample": true,
+    "required_skills": [
+      "sql",
+      "data_visualization",
+      "power_bi",
+      "ms_excel",
+      "statistics"
+    ],
+    "accepted_educations": [
+      "bachelors",
+      "masters"
+    ]
+  },
+  {
+    "id": "INT-130",
+    "title": "Cloud Engineering Intern",
+    "organization_name": "Kisan Finance Bureau",
+    "description": "Help provision AWS environments, Docker images, and basic Linux networking. This 100% synthetic demonstration internship is organized by Kisan Finance Bureau located at Patna, Bihar. Interns will gain practical on-the-ground experience, mentorship from industry supervisors, and a monthly stipend of INR 11,500. Demonstration prototype. Sample internships only. Not an official government portal.",
+    "sector_code": "it_software",
+    "state": "Bihar",
+    "district": "Patna",
+    "work_mode": "onsite",
+    "duration_months": 6,
+    "stipend_inr": 11500,
+    "deadline": "2026-10-20",
+    "is_active": true,
+    "allows_no_skills": false,
+    "is_sample": true,
+    "required_skills": [
+      "aws",
+      "linux",
+      "docker",
+      "git",
+      "ci_cd"
+    ],
+    "accepted_educations": [
+      "diploma",
+      "bachelors"
+    ]
+  },
+  {
+    "id": "INT-131",
+    "title": "Data Engineer Intern",
+    "organization_name": "Udaan Digital Labs",
+    "description": "Build and maintain data pipelines, ETL processes, and data quality checks. This 100% synthetic demonstration internship is organized by Udaan Digital Labs located at Bengaluru, Karnataka. Interns will gain practical on-the-ground experience, mentorship from industry supervisors, and a monthly stipend of INR 11,000. Demonstration prototype. Sample internships only. Not an official government portal.",
+    "sector_code": "it_software",
+    "state": "Karnataka",
+    "district": "Bengaluru",
+    "work_mode": "hybrid",
+    "duration_months": 6,
+    "stipend_inr": 11000,
+    "deadline": "2026-10-21",
+    "is_active": true,
+    "allows_no_skills": false,
+    "is_sample": true,
+    "required_skills": [
+      "python",
+      "sql",
+      "pandas",
+      "rest_apis",
+      "docker"
+    ],
+    "accepted_educations": [
+      "bachelors",
+      "masters"
+    ]
+  },
+  {
+    "id": "INT-132",
+    "title": "MLOps Intern",
+    "organization_name": "Jan Seva Agri Services",
+    "description": "Automate ML model deployment, monitoring, and retraining pipelines. This 100% synthetic demonstration internship is organized by Jan Seva Agri Services located at Pune, Maharashtra. Interns will gain practical on-the-ground experience, mentorship from industry supervisors, and a monthly stipend of INR 12,000. Demonstration prototype. Sample internships only. Not an official government portal.",
+    "sector_code": "it_software",
+    "state": "Maharashtra",
+    "district": "Pune",
+    "work_mode": "remote",
+    "duration_months": 6,
+    "stipend_inr": 12000,
+    "deadline": "2026-10-22",
+    "is_active": true,
+    "allows_no_skills": false,
+    "is_sample": true,
+    "required_skills": [
+      "python",
+      "machine_learning",
+      "docker",
+      "ci_cd",
+      "kubernetes",
+      "git"
+    ],
+    "accepted_educations": [
+      "bachelors",
+      "masters"
+    ]
+  },
+  {
+    "id": "INT-133",
+    "title": "Full Stack Developer Intern",
+    "organization_name": "Bharat Solar Energy Trust",
+    "description": "Develop end-to-end features across frontend (React) and backend (FastAPI). This 100% synthetic demonstration internship is organized by Bharat Solar Energy Trust located at New Delhi, Delhi. Interns will gain practical on-the-ground experience, mentorship from industry supervisors, and a monthly stipend of INR 12,000. Demonstration prototype. Sample internships only. Not an official government portal.",
+    "sector_code": "it_software",
+    "state": "Delhi",
+    "district": "New Delhi",
+    "work_mode": "onsite",
+    "duration_months": 6,
+    "stipend_inr": 12000,
+    "deadline": "2026-10-23",
+    "is_active": true,
+    "allows_no_skills": false,
+    "is_sample": true,
+    "required_skills": [
+      "react",
+      "typescript",
+      "python",
+      "fastapi",
+      "rest_apis",
+      "sql",
+      "git"
+    ],
+    "accepted_educations": [
+      "diploma",
+      "bachelors"
+    ]
+  },
+  {
+    "id": "INT-134",
+    "title": "Data Visualization Intern",
+    "organization_name": "Navodaya Rural Health Care",
+    "description": "Create interactive dashboards and visual analytics for business insights. This 100% synthetic demonstration internship is organized by Navodaya Rural Health Care located at Chennai, Tamil Nadu. Interns will gain practical on-the-ground experience, mentorship from industry supervisors, and a monthly stipend of INR 9,500. Demonstration prototype. Sample internships only. Not an official government portal.",
+    "sector_code": "it_software",
+    "state": "Tamil Nadu",
+    "district": "Chennai",
+    "work_mode": "hybrid",
+    "duration_months": 4,
+    "stipend_inr": 9500,
+    "deadline": "2026-10-24",
+    "is_active": true,
+    "allows_no_skills": false,
+    "is_sample": true,
+    "required_skills": [
+      "data_visualization",
+      "power_bi",
+      "sql",
+      "python",
+      "statistics"
+    ],
+    "accepted_educations": [
+      "twelfth_pass",
+      "diploma",
+      "bachelors"
+    ]
+  },
+  {
+    "id": "INT-135",
+    "title": "Site Reliability Engineering (SRE) Intern",
+    "organization_name": "Sahayog Supply Chain Network",
+    "description": "Monitor system health, automate incident response, and improve reliability. This 100% synthetic demonstration internship is organized by Sahayog Supply Chain Network located at Noida, Uttar Pradesh. Interns will gain practical on-the-ground experience, mentorship from industry supervisors, and a monthly stipend of INR 11,500. Demonstration prototype. Sample internships only. Not an official government portal.",
+    "sector_code": "it_software",
+    "state": "Uttar Pradesh",
+    "district": "Noida",
+    "work_mode": "remote",
+    "duration_months": 6,
+    "stipend_inr": 11500,
+    "deadline": "2026-10-25",
+    "is_active": true,
+    "allows_no_skills": false,
+    "is_sample": true,
+    "required_skills": [
+      "linux",
+      "docker",
+      "kubernetes",
+      "ci_cd",
+      "python",
+      "aws"
+    ],
+    "accepted_educations": [
+      "diploma",
+      "bachelors"
+    ]
+  },
+  {
+    "id": "INT-136",
+    "title": "AI Research Intern",
+    "organization_name": "Vikas Textile Guild",
+    "description": "Assist with literature review, experiment design, and model prototyping. This 100% synthetic demonstration internship is organized by Vikas Textile Guild located at Ahmedabad, Gujarat. Interns will gain practical on-the-ground experience, mentorship from industry supervisors, and a monthly stipend of INR 12,500. Demonstration prototype. Sample internships only. Not an official government portal.",
+    "sector_code": "it_software",
+    "state": "Gujarat",
+    "district": "Ahmedabad",
+    "work_mode": "onsite",
+    "duration_months": 6,
+    "stipend_inr": 12500,
+    "deadline": "2026-10-26",
+    "is_active": true,
+    "allows_no_skills": false,
+    "is_sample": true,
+    "required_skills": [
+      "python",
+      "machine_learning",
+      "pandas",
+      "numpy",
+      "statistics",
+      "git"
+    ],
+    "accepted_educations": [
+      "bachelors",
+      "masters"
+    ]
+  },
+  {
+    "id": "INT-137",
+    "title": "Mobile App Developer (React Native) Intern",
+    "organization_name": "Sankalp Skills Foundation",
+    "description": "Build cross-platform mobile applications with React Native and TypeScript. This 100% synthetic demonstration internship is organized by Sankalp Skills Foundation located at Kolkata, West Bengal. Interns will gain practical on-the-ground experience, mentorship from industry supervisors, and a monthly stipend of INR 11,000. Demonstration prototype. Sample internships only. Not an official government portal.",
+    "sector_code": "it_software",
+    "state": "West Bengal",
+    "district": "Kolkata",
+    "work_mode": "hybrid",
+    "duration_months": 6,
+    "stipend_inr": 11000,
+    "deadline": "2026-10-27",
+    "is_active": true,
+    "allows_no_skills": false,
+    "is_sample": true,
+    "required_skills": [
+      "react",
+      "typescript",
+      "javascript",
+      "git",
+      "rest_apis"
+    ],
+    "accepted_educations": [
+      "diploma",
+      "bachelors"
+    ]
+  },
+  {
+    "id": "INT-138",
+    "title": "Security Engineering Intern",
+    "organization_name": "Samriddhi Hospitality Group",
+    "description": "Support vulnerability scanning, secure code review, and compliance checks. This 100% synthetic demonstration internship is organized by Samriddhi Hospitality Group located at Bhubaneswar, Odisha. Interns will gain practical on-the-ground experience, mentorship from industry supervisors, and a monthly stipend of INR 11,000. Demonstration prototype. Sample internships only. Not an official government portal.",
+    "sector_code": "it_software",
+    "state": "Odisha",
+    "district": "Bhubaneswar",
+    "work_mode": "remote",
+    "duration_months": 6,
+    "stipend_inr": 11000,
+    "deadline": "2026-10-28",
+    "is_active": true,
+    "allows_no_skills": false,
+    "is_sample": true,
+    "required_skills": [
+      "python",
+      "linux",
+      "git",
+      "ci_cd",
+      "rest_apis"
+    ],
+    "accepted_educations": [
+      "diploma",
+      "bachelors"
+    ]
+  },
+  {
+    "id": "INT-139",
+    "title": "Database Administration Intern",
+    "organization_name": "Atmanirbhar Tech Innovations",
+    "description": "Assist with query optimization, backup strategies, and schema migrations. This 100% synthetic demonstration internship is organized by Atmanirbhar Tech Innovations located at Indore, Madhya Pradesh. Interns will gain practical on-the-ground experience, mentorship from industry supervisors, and a monthly stipend of INR 10,000. Demonstration prototype. Sample internships only. Not an official government portal.",
+    "sector_code": "it_software",
+    "state": "Madhya Pradesh",
+    "district": "Indore",
+    "work_mode": "onsite",
+    "duration_months": 6,
+    "stipend_inr": 10000,
+    "deadline": "2026-10-29",
+    "is_active": true,
+    "allows_no_skills": false,
+    "is_sample": true,
+    "required_skills": [
+      "sql",
+      "python",
+      "linux",
+      "docker"
+    ],
+    "accepted_educations": [
+      "diploma",
+      "bachelors"
+    ]
+  },
+  {
+    "id": "INT-140",
+    "title": "API Integration Intern",
+    "organization_name": "Shramik Automotive Solutions",
+    "description": "Design and implement third-party API integrations and webhook handlers. This 100% synthetic demonstration internship is organized by Shramik Automotive Solutions located at Patna, Bihar. Interns will gain practical on-the-ground experience, mentorship from industry supervisors, and a monthly stipend of INR 10,000. Demonstration prototype. Sample internships only. Not an official government portal.",
+    "sector_code": "it_software",
+    "state": "Bihar",
+    "district": "Patna",
+    "work_mode": "hybrid",
+    "duration_months": 4,
+    "stipend_inr": 10000,
+    "deadline": "2026-10-30",
+    "is_active": true,
+    "allows_no_skills": false,
+    "is_sample": true,
+    "required_skills": [
+      "rest_apis",
+      "python",
+      "fastapi",
+      "git",
+      "docker"
+    ],
+    "accepted_educations": [
+      "diploma",
+      "bachelors"
+    ]
+  },
+  {
+    "id": "INT-141",
+    "title": "NLP Intern",
+    "organization_name": "Panchayat Handloom Co-op",
+    "description": "Process text data, build language models, and evaluate NLP pipelines. This 100% synthetic demonstration internship is organized by Panchayat Handloom Co-op located at Bengaluru, Karnataka. Interns will gain practical on-the-ground experience, mentorship from industry supervisors, and a monthly stipend of INR 12,000. Demonstration prototype. Sample internships only. Not an official government portal.",
+    "sector_code": "it_software",
+    "state": "Karnataka",
+    "district": "Bengaluru",
+    "work_mode": "remote",
+    "duration_months": 6,
+    "stipend_inr": 12000,
+    "deadline": "2026-10-31",
+    "is_active": true,
+    "allows_no_skills": false,
+    "is_sample": true,
+    "required_skills": [
+      "python",
+      "machine_learning",
+      "pandas",
+      "numpy",
+      "statistics"
+    ],
+    "accepted_educations": [
+      "bachelors",
+      "masters"
+    ]
+  },
+  {
+    "id": "INT-142",
+    "title": "Computer Vision Intern",
+    "organization_name": "Pragati Finance Bureau",
+    "description": "Develop image processing pipelines and train vision models. This 100% synthetic demonstration internship is organized by Pragati Finance Bureau located at Pune, Maharashtra. Interns will gain practical on-the-ground experience, mentorship from industry supervisors, and a monthly stipend of INR 12,000. Demonstration prototype. Sample internships only. Not an official government portal.",
+    "sector_code": "it_software",
+    "state": "Maharashtra",
+    "district": "Pune",
+    "work_mode": "onsite",
+    "duration_months": 6,
+    "stipend_inr": 12000,
+    "deadline": "2026-11-01",
+    "is_active": true,
+    "allows_no_skills": false,
+    "is_sample": true,
+    "required_skills": [
+      "python",
+      "machine_learning",
+      "numpy",
+      "pandas",
+      "statistics"
+    ],
+    "accepted_educations": [
+      "bachelors",
+      "masters"
+    ]
+  },
+  {
+    "id": "INT-143",
+    "title": "Data Quality Intern",
+    "organization_name": "Gramin Digital Labs",
+    "description": "Implement data validation rules, profiling, and anomaly detection. This 100% synthetic demonstration internship is organized by Gramin Digital Labs located at New Delhi, Delhi. Interns will gain practical on-the-ground experience, mentorship from industry supervisors, and a monthly stipend of INR 9,000. Demonstration prototype. Sample internships only. Not an official government portal.",
+    "sector_code": "it_software",
+    "state": "Delhi",
+    "district": "New Delhi",
+    "work_mode": "hybrid",
+    "duration_months": 4,
+    "stipend_inr": 9000,
+    "deadline": "2026-11-02",
+    "is_active": true,
+    "allows_no_skills": false,
+    "is_sample": true,
+    "required_skills": [
+      "python",
+      "sql",
+      "pandas",
+      "statistics",
+      "data_visualization"
+    ],
+    "accepted_educations": [
+      "twelfth_pass",
+      "diploma",
+      "bachelors"
+    ]
+  },
+  {
+    "id": "INT-144",
+    "title": "Backend Developer (Java/Spring) Intern",
+    "organization_name": "Kisan Agri Services",
+    "description": "Build RESTful services with Spring Boot, JPA, and PostgreSQL. This 100% synthetic demonstration internship is organized by Kisan Agri Services located at Chennai, Tamil Nadu. Interns will gain practical on-the-ground experience, mentorship from industry supervisors, and a monthly stipend of INR 11,500. Demonstration prototype. Sample internships only. Not an official government portal.",
+    "sector_code": "it_software",
+    "state": "Tamil Nadu",
+    "district": "Chennai",
+    "work_mode": "remote",
+    "duration_months": 6,
+    "stipend_inr": 11500,
+    "deadline": "2026-11-03",
+    "is_active": true,
+    "allows_no_skills": false,
+    "is_sample": true,
+    "required_skills": [
+      "java",
+      "rest_apis",
+      "sql",
+      "git",
+      "docker",
+      "ci_cd"
+    ],
+    "accepted_educations": [
+      "diploma",
+      "bachelors"
+    ]
+  },
+  {
+    "id": "INT-145",
+    "title": "Frontend Developer (Vue.js) Intern",
+    "organization_name": "Udaan Solar Energy Trust",
+    "description": "Create reactive user interfaces with Vue 3, TypeScript, and Pinia. This 100% synthetic demonstration internship is organized by Udaan Solar Energy Trust located at Noida, Uttar Pradesh. Interns will gain practical on-the-ground experience, mentorship from industry supervisors, and a monthly stipend of INR 10,500. Demonstration prototype. Sample internships only. Not an official government portal.",
+    "sector_code": "it_software",
+    "state": "Uttar Pradesh",
+    "district": "Noida",
+    "work_mode": "onsite",
+    "duration_months": 6,
+    "stipend_inr": 10500,
+    "deadline": "2026-11-04",
+    "is_active": true,
+    "allows_no_skills": false,
+    "is_sample": true,
+    "required_skills": [
+      "javascript",
+      "typescript",
+      "html_css",
+      "git",
+      "rest_apis"
+    ],
+    "accepted_educations": [
+      "diploma",
+      "bachelors"
+    ]
+  },
+  {
+    "id": "INT-146",
+    "title": "Platform Engineering Intern",
+    "organization_name": "Jan Seva Rural Health Care",
+    "description": "Build developer tooling, internal platforms, and self-service infrastructure. This 100% synthetic demonstration internship is organized by Jan Seva Rural Health Care located at Ahmedabad, Gujarat. Interns will gain practical on-the-ground experience, mentorship from industry supervisors, and a monthly stipend of INR 12,000. Demonstration prototype. Sample internships only. Not an official government portal.",
+    "sector_code": "it_software",
+    "state": "Gujarat",
+    "district": "Ahmedabad",
+    "work_mode": "hybrid",
+    "duration_months": 6,
+    "stipend_inr": 12000,
+    "deadline": "2026-11-05",
+    "is_active": true,
+    "allows_no_skills": false,
+    "is_sample": true,
+    "required_skills": [
+      "docker",
+      "kubernetes",
+      "ci_cd",
+      "python",
+      "git",
+      "linux"
+    ],
+    "accepted_educations": [
+      "diploma",
+      "bachelors"
+    ]
+  },
+  {
+    "id": "INT-147",
+    "title": "Junior Data Scientist Intern",
+    "organization_name": "Bharat Supply Chain Network",
+    "description": "Build exploratory analyses, feature pipelines, and baseline models using Python. This 100% synthetic demonstration internship is organized by Bharat Supply Chain Network located at Kolkata, West Bengal. Interns will gain practical on-the-ground experience, mentorship from industry supervisors, and a monthly stipend of INR 12,000. Demonstration prototype. Sample internships only. Not an official government portal.",
+    "sector_code": "it_software",
+    "state": "West Bengal",
+    "district": "Kolkata",
+    "work_mode": "remote",
+    "duration_months": 6,
+    "stipend_inr": 12000,
+    "deadline": "2026-11-06",
+    "is_active": true,
+    "allows_no_skills": false,
+    "is_sample": true,
+    "required_skills": [
+      "python",
+      "statistics",
+      "pandas",
+      "machine_learning",
+      "sql"
+    ],
+    "accepted_educations": [
+      "bachelors",
+      "masters"
+    ]
+  },
+  {
+    "id": "INT-148",
+    "title": "Junior Data Analyst Intern",
+    "organization_name": "Navodaya Textile Guild",
+    "description": "Clean datasets, write SQL queries, and produce dashboards for programme monitoring. This 100% synthetic demonstration internship is organized by Navodaya Textile Guild located at Bhubaneswar, Odisha. Interns will gain practical on-the-ground experience, mentorship from industry supervisors, and a monthly stipend of INR 10,000. Demonstration prototype. Sample internships only. Not an official government portal.",
+    "sector_code": "it_software",
+    "state": "Odisha",
+    "district": "Bhubaneswar",
+    "work_mode": "onsite",
+    "duration_months": 6,
+    "stipend_inr": 10000,
+    "deadline": "2026-11-07",
+    "is_active": true,
+    "allows_no_skills": false,
+    "is_sample": true,
+    "required_skills": [
+      "python",
+      "sql",
+      "pandas",
+      "data_visualization",
+      "ms_excel",
+      "statistics"
+    ],
+    "accepted_educations": [
+      "twelfth_pass",
+      "diploma",
+      "bachelors"
+    ]
+  },
+  {
+    "id": "INT-149",
+    "title": "Junior Software Development Engineer (SDE) Intern",
+    "organization_name": "Sahayog Skills Foundation",
+    "description": "Implement product features, write unit tests, and participate in code reviews. This 100% synthetic demonstration internship is organized by Sahayog Skills Foundation located at Indore, Madhya Pradesh. Interns will gain practical on-the-ground experience, mentorship from industry supervisors, and a monthly stipend of INR 12,500. Demonstration prototype. Sample internships only. Not an official government portal.",
+    "sector_code": "it_software",
+    "state": "Madhya Pradesh",
+    "district": "Indore",
+    "work_mode": "hybrid",
+    "duration_months": 6,
+    "stipend_inr": 12500,
+    "deadline": "2026-11-08",
+    "is_active": true,
+    "allows_no_skills": false,
+    "is_sample": true,
+    "required_skills": [
+      "python",
+      "java",
+      "git",
+      "rest_apis",
+      "sql"
+    ],
+    "accepted_educations": [
+      "diploma",
+      "bachelors"
+    ]
+  },
+  {
+    "id": "INT-150",
+    "title": "Junior Machine Learning Intern",
+    "organization_name": "Vikas Hospitality Group",
+    "description": "Train and evaluate classical ML models and document experiment results. This 100% synthetic demonstration internship is organized by Vikas Hospitality Group located at Patna, Bihar. Interns will gain practical on-the-ground experience, mentorship from industry supervisors, and a monthly stipend of INR 12,000. Demonstration prototype. Sample internships only. Not an official government portal.",
+    "sector_code": "it_software",
+    "state": "Bihar",
+    "district": "Patna",
+    "work_mode": "remote",
+    "duration_months": 6,
+    "stipend_inr": 12000,
+    "deadline": "2026-11-09",
+    "is_active": true,
+    "allows_no_skills": false,
+    "is_sample": true,
+    "required_skills": [
+      "python",
+      "machine_learning",
+      "numpy",
+      "pandas",
+      "statistics"
+    ],
+    "accepted_educations": [
+      "bachelors",
+      "masters"
+    ]
   }
 ]

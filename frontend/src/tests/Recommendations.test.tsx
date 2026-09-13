@@ -1,7 +1,8 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { RecommendationsPage } from "../pages/RecommendationsPage";
+import { fetchRecommendations } from "../services/api";
 import "../i18n";
 
 const mockRecommendationResponse = {
@@ -76,5 +77,35 @@ describe("RecommendationsPage", () => {
     expect(screen.getByText(/Strong Match/i)).toBeInTheDocument();
     expect(screen.getByText(/Located in your home district/i)).toBeInTheDocument();
     expect(screen.getByText("+Advanced Excel")).toBeInTheDocument();
+  });
+
+  it("normalizes recommendation API validation-detail objects into a readable error string", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: false,
+        status: 422,
+        json: async () => ({
+          detail: [{ type: "json_invalid", msg: "JSON decode error" }],
+        }),
+      })
+    );
+
+    await expect(
+      fetchRecommendations(
+        {
+          education: "tenth_pass",
+          skills: [],
+          sectors: [],
+          state: "Delhi",
+          district: "",
+          preferred_work_mode: "any",
+          is_work_mode_mandatory: false,
+          is_location_mandatory: false,
+          willing_to_relocate: true,
+        },
+        5
+      )
+    ).rejects.toThrow("JSON decode error");
   });
 });

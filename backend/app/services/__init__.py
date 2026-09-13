@@ -6,6 +6,7 @@ from app.services.normalization import (
     clean_text,
 )
 from app.services.recommender import recommender, RecommenderEngine
+from app.services.embeddings import get_embedding_service, EmbeddingService
 
 __all__ = [
     "normalize_education",
@@ -15,4 +16,6 @@ __all__ = [
     "clean_text",
     "recommender",
     "RecommenderEngine",
+    "get_embedding_service",
+    "EmbeddingService",
 ]

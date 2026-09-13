@@ -37,6 +37,14 @@
     "step_2_sub": "Pick any skills you are familiar with. If you are a beginner, that is completely fine!",
     "not_sure_skills": "I am a beginner / Not sure yet",
     "search_skills": "Search skills (e.g. typing, excel, farming, wiring)...",
+    "upload_resume": "Upload Resume (Optional)",
+    "drop_resume": "Drag & drop or click to upload",
+    "resume_formats": "PDF or DOCX, max 5 MB",
+    "uploading": "Processing resume...",
+    "remove_resume": "Remove resume",
+    "resume_skills_detected": "Skills detected from your resume:",
+    "resume_skills_note": "You can deselect any skill by clicking on it below.",
+    "privacy_note": "Your resume is processed in memory and never stored.",
     "step_3_title": "Which sectors are you interested in?",
     "step_3_sub": "Select one or more sectors you would like to explore.",
     "step_4_title": "Where would you like to work?",
@@ -52,7 +60,9 @@
     "next": "Continue",
     "submit": "Find My Internships",
     "loading": "Finding matching internships...",
-    "error_education": "Please select your education to continue."
+    "error_education": "Please select your education to continue.",
+    "error_loading_options": "Failed to load options from server.",
+    "error_fetching_recommendations": "Failed to fetch recommendations from server."
   },
   "recommendations": {
     "title": "Your Recommended Opportunities",

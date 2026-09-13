@@ -178,6 +178,274 @@ def generate():
         items.append(item)
         int_id += 1
 
+    # Additional synthetic technical roles (IDs continue from INT-121; original 120 IDs stay stable)
+    tech_templates = [
+        (
+            "Data Scientist Intern",
+            "Build exploratory analyses, feature pipelines, and baseline models using Python.",
+            ["python", "statistics", "pandas", "machine_learning", "sql"],
+            ["bachelors", "masters"],
+            6,
+            12000,
+        ),
+        (
+            "Data Analyst Intern",
+            "Clean datasets, write SQL queries, and produce dashboards for programme monitoring.",
+            ["python", "sql", "pandas", "data_visualization", "ms_excel", "statistics"],
+            ["twelfth_pass", "diploma", "bachelors"],
+            6,
+            10000,
+        ),
+        (
+            "Software Development Engineer (SDE) Intern",
+            "Implement product features, write unit tests, and participate in code reviews.",
+            ["python", "java", "git", "rest_apis", "sql"],
+            ["diploma", "bachelors"],
+            6,
+            12500,
+        ),
+        (
+            "Machine Learning Intern",
+            "Train and evaluate classical ML models and document experiment results.",
+            ["python", "machine_learning", "numpy", "pandas", "statistics"],
+            ["bachelors", "masters"],
+            6,
+            12000,
+        ),
+        (
+            "Backend Developer (Python/FastAPI) Intern",
+            "Design REST endpoints with FastAPI, persist data with SQL, and write API tests.",
+            ["python", "fastapi", "rest_apis", "sql", "git", "docker"],
+            ["diploma", "bachelors"],
+            6,
+            11500,
+        ),
+        (
+            "Frontend Developer (React) Intern",
+            "Build accessible React interfaces with TypeScript, HTML, and CSS.",
+            ["react", "typescript", "javascript", "html_css", "git"],
+            ["diploma", "bachelors"],
+            6,
+            11000,
+        ),
+        (
+            "DevOps Intern",
+            "Containerize services, maintain CI/CD pipelines, and assist with Linux operations.",
+            ["docker", "git", "linux", "ci_cd", "kubernetes"],
+            ["diploma", "bachelors"],
+            6,
+            11500,
+        ),
+        (
+            "QA/Test Automation Intern",
+            "Author automated UI and API tests using Python, Selenium, and CI pipelines.",
+            ["test_automation", "python", "selenium", "git", "ci_cd"],
+            ["twelfth_pass", "diploma", "bachelors"],
+            4,
+            9000,
+        ),
+        (
+            "Business Intelligence Intern",
+            "Model reporting datasets and publish Power BI / visualization dashboards.",
+            ["sql", "data_visualization", "power_bi", "ms_excel", "statistics"],
+            ["bachelors", "masters"],
+            6,
+            10500,
+        ),
+        (
+            "Cloud Engineering Intern",
+            "Help provision AWS environments, Docker images, and basic Linux networking.",
+            ["aws", "linux", "docker", "git", "ci_cd"],
+            ["diploma", "bachelors"],
+            6,
+            11500,
+        ),
+        # Additional 15 internships to reach 25+ total technical roles
+        (
+            "Data Engineer Intern",
+            "Build and maintain data pipelines, ETL processes, and data quality checks.",
+            ["python", "sql", "pandas", "rest_apis", "docker"],
+            ["bachelors", "masters"],
+            6,
+            11000,
+        ),
+        (
+            "MLOps Intern",
+            "Automate ML model deployment, monitoring, and retraining pipelines.",
+            ["python", "machine_learning", "docker", "ci_cd", "kubernetes", "git"],
+            ["bachelors", "masters"],
+            6,
+            12000,
+        ),
+        (
+            "Full Stack Developer Intern",
+            "Develop end-to-end features across frontend (React) and backend (FastAPI).",
+            ["react", "typescript", "python", "fastapi", "rest_apis", "sql", "git"],
+            ["diploma", "bachelors"],
+            6,
+            12000,
+        ),
+        (
+            "Data Visualization Intern",
+            "Create interactive dashboards and visual analytics for business insights.",
+            ["data_visualization", "power_bi", "sql", "python", "statistics"],
+            ["twelfth_pass", "diploma", "bachelors"],
+            4,
+            9500,
+        ),
+        (
+            "Site Reliability Engineering (SRE) Intern",
+            "Monitor system health, automate incident response, and improve reliability.",
+            ["linux", "docker", "kubernetes", "ci_cd", "python", "aws"],
+            ["diploma", "bachelors"],
+            6,
+            11500,
+        ),
+        (
+            "AI Research Intern",
+            "Assist with literature review, experiment design, and model prototyping.",
+            ["python", "machine_learning", "pandas", "numpy", "statistics", "git"],
+            ["bachelors", "masters"],
+            6,
+            12500,
+        ),
+        (
+            "Mobile App Developer (React Native) Intern",
+            "Build cross-platform mobile applications with React Native and TypeScript.",
+            ["react", "typescript", "javascript", "git", "rest_apis"],
+            ["diploma", "bachelors"],
+            6,
+            11000,
+        ),
+        (
+            "Security Engineering Intern",
+            "Support vulnerability scanning, secure code review, and compliance checks.",
+            ["python", "linux", "git", "ci_cd", "rest_apis"],
+            ["diploma", "bachelors"],
+            6,
+            11000,
+        ),
+        (
+            "Database Administration Intern",
+            "Assist with query optimization, backup strategies, and schema migrations.",
+            ["sql", "python", "linux", "docker"],
+            ["diploma", "bachelors"],
+            6,
+            10000,
+        ),
+        (
+            "API Integration Intern",
+            "Design and implement third-party API integrations and webhook handlers.",
+            ["rest_apis", "python", "fastapi", "git", "docker"],
+            ["diploma", "bachelors"],
+            4,
+            10000,
+        ),
+        (
+            "NLP Intern",
+            "Process text data, build language models, and evaluate NLP pipelines.",
+            ["python", "machine_learning", "pandas", "numpy", "statistics"],
+            ["bachelors", "masters"],
+            6,
+            12000,
+        ),
+        (
+            "Computer Vision Intern",
+            "Develop image processing pipelines and train vision models.",
+            ["python", "machine_learning", "numpy", "pandas", "statistics"],
+            ["bachelors", "masters"],
+            6,
+            12000,
+        ),
+        (
+            "Data Quality Intern",
+            "Implement data validation rules, profiling, and anomaly detection.",
+            ["python", "sql", "pandas", "statistics", "data_visualization"],
+            ["twelfth_pass", "diploma", "bachelors"],
+            4,
+            9000,
+        ),
+        (
+            "Backend Developer (Java/Spring) Intern",
+            "Build RESTful services with Spring Boot, JPA, and PostgreSQL.",
+            ["java", "rest_apis", "sql", "git", "docker", "ci_cd"],
+            ["diploma", "bachelors"],
+            6,
+            11500,
+        ),
+        (
+            "Frontend Developer (Vue.js) Intern",
+            "Create reactive user interfaces with Vue 3, TypeScript, and Pinia.",
+            ["javascript", "typescript", "html_css", "git", "rest_apis"],
+            ["diploma", "bachelors"],
+            6,
+            10500,
+        ),
+        (
+            "Platform Engineering Intern",
+            "Build developer tooling, internal platforms, and self-service infrastructure.",
+            ["docker", "kubernetes", "ci_cd", "python", "git", "linux"],
+            ["diploma", "bachelors"],
+            6,
+            12000,
+        ),
+    ]
+    tech_title_variants = [
+        "{title}",
+        "Junior {title}",
+        "Associate {title}",
+    ]
+    tech_locations = [
+        ("Karnataka", "Bengaluru"),
+        ("Maharashtra", "Pune"),
+        ("Delhi", "New Delhi"),
+        ("Tamil Nadu", "Chennai"),
+        ("Uttar Pradesh", "Noida"),
+        ("Gujarat", "Ahmedabad"),
+        ("West Bengal", "Kolkata"),
+        ("Odisha", "Bhubaneswar"),
+        ("Madhya Pradesh", "Indore"),
+        ("Bihar", "Patna"),
+    ]
+    tech_modes = ["onsite", "hybrid", "remote"]
+
+    for j in range(30):
+        code_id = f"INT-{int_id:03d}"
+        title, desc_summary, skills, educations, duration, stipend = tech_templates[j % len(tech_templates)]
+        variant = tech_title_variants[(j // len(tech_templates)) % len(tech_title_variants)]
+        display_title = variant.format(title=title)
+        state, district = tech_locations[j % len(tech_locations)]
+        mode = tech_modes[j % len(tech_modes)]
+        org_p = ORG_PREFIXES[(j + 7) % len(ORG_PREFIXES)]
+        org_t = ORG_TYPES[(j + 2) % len(ORG_TYPES)]
+        org_name = f"{org_p} {org_t}"
+        deadline = REF_DATE + timedelta(days=40 + (j % 80))
+        description = (
+            f"{desc_summary} This 100% synthetic demonstration internship is organized by {org_name} "
+            f"located at {district}, {state}. Interns will gain practical on-the-ground experience, "
+            f"mentorship from industry supervisors, and a monthly stipend of INR {stipend:,}. "
+            f"Demonstration prototype. Sample internships only. Not an official government portal."
+        )
+        items.append({
+            "id": code_id,
+            "title": display_title,
+            "organization_name": org_name,
+            "description": description,
+            "sector_code": "it_software",
+            "state": state,
+            "district": district,
+            "work_mode": mode,
+            "duration_months": duration,
+            "stipend_inr": stipend,
+            "deadline": deadline.isoformat(),
+            "is_active": True,
+            "allows_no_skills": False,
+            "is_sample": True,
+            "required_skills": list(skills),
+            "accepted_educations": list(educations),
+        })
+        int_id += 1
+
     out_file = BASE_DIR / "internships.json"
     with open(out_file, "w", encoding="utf-8") as f:
         json.dump(items, f, indent=2, ensure_ascii=False)
